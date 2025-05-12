@@ -1,36 +1,35 @@
 #pragma once
 
-#include <iostream>
-#include "PolygonalMesh.hpp"
+#include "PolyhedralMesh.hpp"
+#include "UCDUtilities.hpp"
+#include <limits>
 
 using namespace std;
 
-namespace PolygonalLibrary
+namespace PolyhedralLibrary
 {
-// Import the polygonal mesh and test if the mesh is correct
-// mesh: a PolygonalMesh struct
-// return the result of the reading, true if is success, false otherwise
-bool ImportMesh(PolygonalMesh& mesh);
+bool ImportMesh(const string& path, PolyhedralMesh& mesh);
 
-// Import the Cell0D properties from Cell0Ds.csv file
-// mesh: a PolygonalMesh struct
-// return the result of the reading, true if is success, false otherwise
-bool ImportCell0Ds(PolygonalMesh& mesh);
+bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh);
 
-// Import the Cell1D properties from Cell1Ds.csv file
-// mesh: a PolygonalMesh struct
-// return the result of the reading, true if is success, false otherwise
-bool ImportCell1Ds(PolygonalMesh& mesh);
+bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh);
 
-// Import the Cell2D properties from Cell2Ds.csv file
-// mesh: a PolygonalMesh struct
-// return the result of the reading, true if is success, false otherwise
-bool ImportCell2Ds(PolygonalMesh& mesh);
+bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
 
-// Checks each edge has non-zero length
-bool edges_length(PolygonalMesh& mesh);
+bool ImportCell3Ds(const string& path, PolyhedralMesh& mesh);
 
-//Checks each polygon has non-zero area
-bool check_area(PolygonalMesh& mesh);
+bool CheckLength(PolyhedralMesh& mesh);
+
+bool CheckAreas(PolyhedralMesh& mesh);
+
+bool CheckFaces(PolyhedralMesh& mesh);
+
+bool CheckMarker0Ds(PolyhedralMesh& mesh);
+
+bool CheckMarker1Ds(PolyhedralMesh& mesh);
+
+bool ExpPoints(PolyhedralMesh& mesh, const string& FilePath);
+
+bool ExpSegments(PolyhedralMesh& mesh, const string& FilePath);
 
 }
