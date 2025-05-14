@@ -62,3 +62,4 @@ add_executable(ProgettoPCS2025
 
 target_link_libraries(${PROJECT_NAME} ${ProgettoPCS2025_LINKED_LIBRARIES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_includes})
+target_compile_options(${CMAKE_PROJECT_NAME}_TEST PUBLIC -fPIC)
