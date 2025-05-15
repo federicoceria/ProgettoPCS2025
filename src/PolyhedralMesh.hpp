@@ -14,7 +14,7 @@ struct PolyhedralMesh
     unsigned int NumCell0Ds = 0;
 	vector<unsigned int> Cell0DsId = {};
 	vector<unsigned int> Cell0DsMarker = {}; 
-	vector<Vector2d> Cell0DsCoordinates = {}; 
+	vector<Vector3d> Cell0DsCoordinates = {}; 
 	
 	
 	// Celle 1D
@@ -27,19 +27,19 @@ struct PolyhedralMesh
 	// Celle 2D
     unsigned int NumCell2Ds = 0;
 	vector<unsigned int> Cell2DsId = {};
-	vector<unsigned int> Cell2DsMarker = {};
-	vector<vector<unsigned int>> Cell2DsVertices = {};  // vertici e spigoli delle celle bidimensionali
+	vector<vector<unsigned int>> Cell2DsVertices = {};
 	vector<vector<unsigned int>> Cell2DsEdges = {};
 	
 	
 	// Celle 3D
 	unsigned int NumCell3Ds = 0;
+	vector<unsigned int> Cell3DsId = {};
+	vector<vector<unsigned int>> Cell3DsVertices = {};  
+	vector<vector<unsigned int>> Cell3DsEdges = {};
+	vector<vector<unsigned int>> cell3DsFaces = {};
 	
-	
-	
-	
-    MatrixXd Points;
-	MatrixXi Segments;
+    // MatrixXd Points;
+	// MatrixXi Segments;
 	
 	const double epsilon = 1.0e-8; 
 };

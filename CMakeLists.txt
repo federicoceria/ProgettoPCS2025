@@ -34,26 +34,27 @@ list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gtest_main)
 list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gmock)
 list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gmock_main)
 
-# Insert Sources
+# Subdirectories
 ################################################################################
+
 add_subdirectory(src)
 
-list(APPEND ProgettoPCS2025_SOURCES ${PolyhedralMesh_sources})
-list(APPEND ProgettoPCS2025_HEADERS ${PolyhedralMesh_headers})
-list(APPEND ProgettoPCS2025_INCLUDE ${PolyhedralMesh_includes})
+list(APPEND ProgettoPCS2025_sources ${PolyhedralMesh_sources})
+list(APPEND ProgettoPCS2025_headers ${PolyhedralMesh_headers})
+list(APPEND ProgettoPCS2025_includes ${PolyhedralMesh_includes})
 
 add_subdirectory(ExportParaview)
 
-list(APPEND ProgettoPCS2025_SOURCES ${src_paraview_sources})
-list(APPEND ProgettoPCS2025_HEADERS ${src_paraview_headers})
-list(APPEND ProgettoPCS2025_INCLUDE ${src_paraview_includes})
+list(APPEND ProgettoPCS2025_sources ${src_paraview_sources})
+list(APPEND ProgettoPCS2025_headers ${src_paraview_headers})
+list(APPEND ProgettoPCS2025_includes ${src_paraview_includes})
 
 # Create executable
 ################################################################################
 add_executable(ProgettoPCS2025
       main.cpp
-      ${ProgettoPCS2025_SOURCES}
-      ${ProgettoPCS2025_HEADERS})
+      ${ProgettoPCS2025_sources}
+      ${ProgettoPCS2025_headers})
 
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Platonic_solids/Icosaedro/Cell0Ds.csv 
@@ -69,4 +70,4 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Platonic_solids/Icosaedro/Cell0Ds.csv
 
 target_link_libraries(${PROJECT_NAME} ${ProgettoPCS2025_LINKED_LIBRARIES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_includes})
-#target_compile_options(${CMAKE_PROJECT_NAME}_TEST PUBLIC -fPIC)
+target_compile_options(${PROJECT_NAME} PUBLIC -fPIC)
