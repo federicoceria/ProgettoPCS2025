@@ -43,14 +43,21 @@ bool PolyhedralChoice(const string& path,
 			default:
 				return false;
 		}
+
+		// Se q=3 e b o c diversi da 0 importo Goldberg Classe I
+		if (q == 3 && (b + c != 0))
+		{
+			// Svuota mesh
+			mesh = PolyhedralMesh(); 
+			if (!GenerateGoldbergClassI(p, q, b, c, mesh)) {
+				cerr << "Error in Goldberg's generation";
+				return false;
+			}
+			return true;
+		}
 		
 		filePath = path + polihedron;
 		ImportMesh(filePath, mesh);
-		
-		// Nota: qui andrà inserita la funzione che costruisce il poliedro GEODETICO
-		// fornendo la mesh, i parametri b e c (per la triangolazione) e il percorso;
-		
-		// if (q=='3') Goldberg: duale del poliedro geodetico.
 		
 		return true;
 	}
@@ -58,7 +65,7 @@ bool PolyhedralChoice(const string& path,
 	return true;
 }
 
-//*******************************************************************************************+
+//*******************************************************************************************
 	
 bool ImportMesh(const string& path, PolyhedralMesh& mesh)
 {
@@ -165,7 +172,6 @@ bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh)
 		mesh.Cell0DsCoordinates.push_back(Coordinates);
 	}
 	
-	
     return true; 
 }
 
@@ -261,6 +267,187 @@ bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
 		
 	return true;
 }
+
+// ***************************************************************************
+
+bool GenerateGeodeticPolyhedronType1(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
+{
+    int points_id = 0;
+    int edge_id = 0;
+    int face_id = 0;
+	int duplicate_id = 0;
+
+	// Calcolo dei punti da generare per ogni faccia del poliedro
+    int total_points = PlatonicPolyhedron.NumCell2Ds * ((num_segments + 1) * (num_segments + 2) / 2);
+
+    GeodeticPolyhedron.Cell0DsId.reserve(total_points);
+    GeodeticPolyhedron.Cell0DsCoordinates.reserve(total_points);
+
+    map<array<int, 4>, int> coefficients;
+
+	// Numero max di facce triangolari da generare
+    int total_faces = PlatonicPolyhedron.NumCell2Ds * 2 * num_segments * num_segments;
+    GeodeticPolyhedron.Cell2DsId.reserve(total_faces);
+    GeodeticPolyhedron.Cell2DsVertices.resize(total_faces);
+    GeodeticPolyhedron.Cell2DsEdges.resize(total_faces);
+
+	// Numero max di spigoli da generare
+    int total_edges = PlatonicPolyhedron.NumCell2Ds * 3 * num_segments * num_segments;
+    GeodeticPolyhedron.Cell1DsId.reserve(total_edges);
+    GeodeticPolyhedron.Cell1DsVertices.reserve(total_edges);
+
+	// Ciclo su ogni faccia del poliedro
+    for (const auto& id : PlatonicPolyhedron.Cell2DsId)
+    {
+		// Estraggo i 3 vertici dalla faccia corrente e li salvo in vettori
+        Vector3d Vertex1 = PlatonicPolyhedron.Cell0DsCoordinates[PlatonicPolyhedron.Cell2DsVertices[id][0]];
+        Vector3d Vertex2 = PlatonicPolyhedron.Cell0DsCoordinates[PlatonicPolyhedron.Cell2DsVertices[id][1]];
+        Vector3d Vertex3 = PlatonicPolyhedron.Cell0DsCoordinates[PlatonicPolyhedron.Cell2DsVertices[id][2]];
+
+		// Genera i punti interni alla faccia con suddivisione baricentrica
+        for (int i = 0; i <= num_segments; ++i)
+        {
+            for (int j = 0; j <= i; ++j)
+            {
+                int a = num_segments - i;
+                int b = i - j;
+                int c = j;
+
+				// Calcolo del punto tramite combinazione lineare
+                Vector3d Point = (double(a) / num_segments) * Vertex1 +
+                                 (double(b) / num_segments) * Vertex2 +
+                                 (double(c) / num_segments) * Vertex3;
+
+				// Chiave della mappa: coefficienti + ID della faccia
+                array<int, 4> coeffs = {a, b, c, static_cast<int>(id)};
+
+				// Se il punto non è un duplicato, lo aggiungiam
+                if (!CheckDuplicatesVertex(GeodeticPolyhedron.Cell0DsCoordinates, Point, points_id, duplicate_id))
+                {
+                    coefficients[coeffs] = points_id;
+                    GeodeticPolyhedron.Cell0DsId.push_back(points_id);
+                    GeodeticPolyhedron.Cell0DsCoordinates.push_back(Point);
+                    GeodeticPolyhedron.NumCell0Ds++;
+                    points_id++;
+                }
+                else
+                {
+                    coefficients[coeffs] = duplicate_id;
+                }
+            }
+        }
+    }
+
+	// Costruzione dei triangoli all'interno di ogni faccia originale
+    for (const auto& id : PlatonicPolyhedron.Cell2DsId)
+    {
+        for (int i = 0; i < num_segments; ++i)
+        {
+            for (int j = 0; j < num_segments - i; ++j)
+            {
+                // Triangolo “a punta in su”
+                int v1 = coefficients[{num_segments - i - j, i, j, static_cast<int>(id)}];
+                int v2 = coefficients[{num_segments - i - (j + 1), i, j + 1, static_cast<int>(id)}];
+                int v3 = coefficients[{num_segments - (i + 1) - j, i + 1, j, static_cast<int>(id)}];
+
+                GeodeticPolyhedron.Cell2DsId.push_back(face_id);
+                GeodeticPolyhedron.Cell2DsVertices[face_id] = {
+                    static_cast<unsigned int>(v1),
+                    static_cast<unsigned int>(v2),
+                    static_cast<unsigned int>(v3)};
+                GeodeticPolyhedron.Cell2DsEdges[face_id].resize(3);
+
+                for (int k = 0; k < 3; ++k)
+                {
+                    int v_start = GeodeticPolyhedron.Cell2DsVertices[face_id][k];
+                    int v_end = GeodeticPolyhedron.Cell2DsVertices[face_id][(k + 1) % 3];
+
+                    if (!CheckDuplicatesEdge(GeodeticPolyhedron.Cell1DsVertices, v_start, v_end, edge_id))
+                    {
+                        GeodeticPolyhedron.Cell1DsId.push_back(edge_id);
+                        GeodeticPolyhedron.Cell1DsVertices.push_back(Vector2i(v_start, v_end));
+                        GeodeticPolyhedron.NumCell1Ds++;
+                        edge_id++;
+                    }
+                }
+
+                GeodeticPolyhedron.NumCell2Ds++;
+                face_id++;
+
+                // Triangolo “a punta in giù”
+                if (i > 0)
+                {
+                    int v4 = coefficients[{num_segments - (i - 1) - j, i - 1, j, static_cast<int>(id)}];
+
+                    GeodeticPolyhedron.Cell2DsId.push_back(face_id);
+                    GeodeticPolyhedron.Cell2DsVertices[face_id] = {
+                        static_cast<unsigned int>(v3),
+                        static_cast<unsigned int>(v2),
+                        static_cast<unsigned int>(v4)};
+                    GeodeticPolyhedron.Cell2DsEdges[face_id].resize(3);
+
+                    for (int k = 0; k < 3; ++k)
+                    {
+                        int v_start = GeodeticPolyhedron.Cell2DsVertices[face_id][k];
+                        int v_end = GeodeticPolyhedron.Cell2DsVertices[face_id][(k + 1) % 3];
+
+                        if (!CheckDuplicatesEdge(GeodeticPolyhedron.Cell1DsVertices, v_start, v_end, edge_id))
+                        {
+                            GeodeticPolyhedron.Cell1DsId.push_back(edge_id);
+                            GeodeticPolyhedron.Cell1DsVertices.push_back(Vector2i(v_start, v_end));
+                            GeodeticPolyhedron.NumCell1Ds++;
+                            edge_id++;
+                        }
+                    }
+
+                    GeodeticPolyhedron.NumCell2Ds++;
+                    face_id++;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+// ***************************************************************************
+
+bool CheckDuplicatesVertex(const std::vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)
+{
+    for (int i = 0; i < current_id; ++i)
+    {
+        if ((coords[i] - point).norm() < 1e-8)
+        {
+            duplicate_id = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+// ***************************************************************************
+
+bool CheckDuplicatesEdge(const std::vector<Vector2i>& edges, int v1, int v2, int& current_edge_id)
+{
+    for (int i = 0; i < current_edge_id; ++i)
+    {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        if ((a == v1 && b == v2) || (a == v2 && b == v1))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& GoldbergSolid) 
+{
+	return true;
+}
+
+// ***************************************************************************
+
 /*
 // *******************************************************************************
 

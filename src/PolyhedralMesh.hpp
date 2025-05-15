@@ -38,8 +38,8 @@ struct PolyhedralMesh
 	
     //MatrixXd Points;
 	//MatrixXi Segments;
-	
-	const double epsilon = 1.0e-8; 
+		
+	double epsilon = 1.0e-8; 
 };
 
 }
