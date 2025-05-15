@@ -5,12 +5,13 @@
 
 using namespace std;
 
-double EdgeLength(const double& x1, const double& y1, const double& z1, const double& x2, const double& y2, const double& z2)
+/*double EdgeLength(const double& x1, const double& y1, const double& z1, const double& x2, const double& y2, const double& z2)
 {
 	return sqrt(pow(x2 - x1 , 2) + pow(y2 - y1 , 2) + pow(z2 - z1, 2));	
 }
 
 // ****************************************************************************
+*/
 
 namespace PolyhedralLibrary
 {
@@ -78,6 +79,8 @@ bool ImportMesh(const string& path, PolyhedralMesh& mesh)
         cerr << "File Cell2Ds.csv not found" << endl;
         return false;
     }
+
+	return true;
 }
 
 //****************************************************************************
@@ -149,7 +152,6 @@ bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh)
 	mesh.NumCell0Ds = lines.size();
     mesh.Cell0DsCoordinates.reserve(mesh.NumCell0Ds);
     mesh.Cell0DsId.reserve(mesh.NumCell0Ds);
-    mesh.Cell0DsMarker.reserve(mesh.NumCell0Ds);
 	
     Vector3d Coordinates;
     char tmp;
