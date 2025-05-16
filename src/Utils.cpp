@@ -21,48 +21,22 @@ bool PolyhedralChoice(const string& path,
 						const char& q, 
 						const char& b, 
 						const char& c,
-						bool& walk)
+						const string& solidType)
 {
-	string ans;
-	string polihedron;
 	string filePath;
 	
-	if (p=='3')
-	{
-		switch(q)
-		{
-			case '3':
-				polihedron = "/Tetraedro";
-				break;
-			case '4':
-				polihedron = "/Ottaedro";
-				break;
-			case '5':
-				polihedron = "/Icosaedro";
-				break;
-			default:
-				return false;
-		}
+	if (solidType == "tetrahedron") {
+        filePath = path + "/Tetraedro";
+    } else if (solidType == "octahedron") {
+        filePath = path + "/Ottaedro";
+    } else if (solidType == "icosahedron") {
+        filePath = path + "/Icosaedro";
+    } else {
+        cerr << "Unsupported solid type: " << solidType << endl;
+        return false;
+    }
 
-		// Se q=3 e b o c diversi da 0 importo Goldberg Classe I
-		if (q == 3 && (b + c != 0))
-		{
-			// Svuota mesh
-			mesh = PolyhedralMesh(); 
-			if (!GoldbergClassI(p, q, b, c, mesh)) {
-				cerr << "Error in Goldberg's polyhedron generation";
-				return false;
-			}
-			return true;
-		}
-		
-		filePath = path + polihedron;
-		ImportMesh(filePath, mesh);
-		
-		return true;
-	}
-	
-	return true;
+    return ImportMesh(filePath, mesh);
 }
 
 //*******************************************************************************************
@@ -102,7 +76,7 @@ bool ImportVector(const string& path, PolyhedralMesh& mesh)
 	char Id1;
 	char Id2;
 	char tmp;
-	bool walk = false;
+	string solidType;
 	
 	cout << "Insert each parameter when asked and push enter to confirm." << endl;
 	cout << "Insert p: ";
@@ -122,18 +96,20 @@ bool ImportVector(const string& path, PolyhedralMesh& mesh)
 	
 	if(Id1 == 'n' && Id2 == 'n')
 	{
-		if (!PolyhedralChoice(path, mesh, p, q, b, c, walk))
+		solidType = "no walk";
+		if (!PolyhedralChoice(path, mesh, p, q, b, c, solidType))
 			return false;
 	}
 	else if(Id1 != 'n' && Id2 != 'n')
 	{
-		walk = true;
-		if (!PolyhedralChoice(path, mesh, p, q, b, c, walk))
+		solidType = "walk";
+		if (!PolyhedralChoice(path, mesh, p, q, b, c, solidType))
 			return false;
 	}
 	else
 	{
 		cerr << "Error: data not valid" << endl;
+		return false;
 	}
 	return true;
 }
@@ -272,7 +248,7 @@ bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool GeodeticPolyhedron1(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
+bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
 {
     int points_id = 0;
     int edge_id = 0;

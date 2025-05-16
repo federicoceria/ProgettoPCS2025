@@ -16,7 +16,7 @@ bool PolyhedralChoice(const string& path,
 						const char& q, 
 						const char& b,
 						const char & c,
-						bool& walk);
+						string& solidType);
 
 bool ImportMesh(const string& path, PolyhedralMesh& mesh);
 
@@ -26,13 +26,13 @@ bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh);
 
 bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
 
-bool GeodeticPolyhedron1(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
+bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
 
-bool CheckDuplicatesVertex(const std::vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
+bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 
-bool CheckDuplicatesEdge(const std::vector<Vector2i>& edges, int v1, int v2, int& current_edge_id);
+bool CheckDuplicatesEdge(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id);
 
-bool GoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& GoldbergSolid);
+bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& GoldbergSolid);
 
 /*
 bool CheckFaces(PolyhedralMesh& mesh);

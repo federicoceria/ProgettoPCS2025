@@ -9,29 +9,27 @@ using namespace PolyhedralLibrary;
 int main()
 {
     string path = "/home/appuser/Data/ProgettoPCS2025/Platonic_solids";
-    string output_0D = "/home/appuser/Data/ProgettoPCS2025/Output/Cell0Ds.inp";
-	string output_1D = "/home/appuser/Data/ProgettoPCS2025/Output/Cell1Ds.inp";
-	
+
     // Mesh di partenza e quella generata
-    PolyhedralMesh icosahedron;
+    PolyhedralMesh inputMesh;
     PolyhedralMesh geodetic;
 
-    // Numero di segmenti da usare per la suddivisione
+    // Parametri per il solido geodetico
     int num_segments = 3;
 
-    // Importa la mesh dell'icosaedro
-    if (!ImportMesh(path, icosahedron)) {
-        cerr << "Error importing the Icosahedron." << endl;
+    // Parametri inutilizzati
+    char p = ' ', q = ' ', b = ' ', c = ' ';
+
+    string solidType;
+    cout << "Which solid do you want to generate? (tetrahedron, octahedron, icosahedron): ";
+    cin >> solidType;
+
+    if (!PolyhedralChoice(path, inputMesh, p, q, b, c, solidType)) {
+        cerr << "Error importing selected solid." << endl;
         return 1;
     }
 
-   /* cout << "Icosahedron successfully imported." << endl;
-    cout << "Number of vertices: " << icosahedron.NumCell0Ds << endl;
-    cout << "Number of edges: " << icosahedron.NumCell1Ds << endl;
-    cout << "Number of faces: " << icosahedron.NumCell2Ds << endl; */
-
-    // Genera il solido geodetico
-    if (!GeodeticPolyhedron1(icosahedron, geodetic, num_segments)) {
+    if (!GeodeticPolyhedron(inputMesh, geodetic, num_segments)) {
         cerr << "Error generating the geodetic solid." << endl;
         return 1;
     }
@@ -39,8 +37,11 @@ int main()
     cout << "Geodetic solid successfully generated with num_segments = " << num_segments << endl;
     cout << "Number of vertices: " << geodetic.NumCell0Ds << endl;
     cout << "Number of edges: " << geodetic.NumCell1Ds << endl;
-    cout << "Number of faces: " << geodetic.NumCell2Ds << endl;
+    cout << "Number of faces: "   << geodetic.NumCell2Ds << endl;
 
     return 0;
 }
+
+
+
 
