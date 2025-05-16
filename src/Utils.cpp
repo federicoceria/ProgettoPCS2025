@@ -14,29 +14,42 @@ using namespace std;
 */
 
 namespace PolyhedralLibrary
-{
 bool PolyhedralChoice(const string& path, 
 						PolyhedralMesh& mesh, 
 						const char& p, 
 						const char& q, 
 						const char& b, 
 						const char& c,
-						const string& solidType)
+						bool& walk)
 {
+	string ans;
+	string polihedron;
 	string filePath;
 	
-	if (solidType == "tetrahedron") {
-        filePath = path + "/Tetraedro";
-    } else if (solidType == "octahedron") {
-        filePath = path + "/Ottaedro";
-    } else if (solidType == "icosahedron") {
-        filePath = path + "/Icosaedro";
-    } else {
-        cerr << "Unsupported solid type: " << solidType << endl;
-        return false;
-    }
-
-    return ImportMesh(filePath, mesh);
+	if (p=='3')
+	{
+		switch(q)
+		{
+			case '3':
+				polihedron = "/Tetraedro";
+				break;
+			case '4':
+				polihedron = "/Ottaedro";
+				break;
+			case '5':
+				polihedron = "/Icosaedro";
+				break;
+			default:
+				return false;
+		}
+		
+		filePath = path + polihedron;
+		ImportMesh(filePath, mesh);
+		
+		return true;
+	}
+	
+	return true;
 }
 
 //*******************************************************************************************
@@ -76,7 +89,7 @@ bool ImportVector(const string& path, PolyhedralMesh& mesh)
 	char Id1;
 	char Id2;
 	char tmp;
-	string solidType;
+	bool walk = false;
 	
 	cout << "Insert each parameter when asked and push enter to confirm." << endl;
 	cout << "Insert p: ";
@@ -96,14 +109,13 @@ bool ImportVector(const string& path, PolyhedralMesh& mesh)
 	
 	if(Id1 == 'n' && Id2 == 'n')
 	{
-		solidType = "no walk";
-		if (!PolyhedralChoice(path, mesh, p, q, b, c, solidType))
+		if (!PolyhedralChoice(path, mesh, p, q, b, c, walk))
 			return false;
 	}
 	else if(Id1 != 'n' && Id2 != 'n')
 	{
-		solidType = "walk";
-		if (!PolyhedralChoice(path, mesh, p, q, b, c, solidType))
+		walk = true;
+		if (!PolyhedralChoice(path, mesh, p, q, b, c, walk))
 			return false;
 	}
 	else
