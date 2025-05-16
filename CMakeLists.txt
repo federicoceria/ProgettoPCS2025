@@ -49,6 +49,12 @@ list(APPEND ProgettoPCS2025_sources ${src_paraview_sources})
 list(APPEND ProgettoPCS2025_headers ${src_paraview_headers})
 list(APPEND ProgettoPCS2025_includes ${src_paraview_includes})
 
+add_subdirectory(src_test)
+
+list(APPEND ProgettoPCS2025_TEST_sources ${src_test_sources})
+list(APPEND ProgettoPCS2025_TEST_headers ${src_test_headers})
+list(APPEND ProgettoPCS2025_TEST_includes ${src_test_includes})
+
 # Create executable
 ################################################################################
 add_executable(ProgettoPCS2025
