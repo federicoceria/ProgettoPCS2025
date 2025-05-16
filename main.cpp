@@ -8,8 +8,10 @@ using namespace PolyhedralLibrary;
 
 int main()
 {
-    string path = "/home/appuser/Data/progettoPCS2025/Platonic_solids/Icosaedro";
-    
+    string path = "/home/appuser/Data/ProgettoPCS2025/Platonic_solids";
+    string output_0D = "/home/appuser/Data/ProgettoPCS2025/Output/Cell0Ds.inp";
+	string output_1D = "/home/appuser/Data/ProgettoPCS2025/Output/Cell1Ds.inp";
+	
     // Mesh di partenza e quella generata
     PolyhedralMesh icosahedron;
     PolyhedralMesh geodetic;
@@ -23,13 +25,13 @@ int main()
         return 1;
     }
 
-    cout << "Icosahedron successfully imported." << endl;
+   /* cout << "Icosahedron successfully imported." << endl;
     cout << "Number of vertices: " << icosahedron.NumCell0Ds << endl;
     cout << "Number of edges: " << icosahedron.NumCell1Ds << endl;
-    cout << "Number of faces: " << icosahedron.NumCell2Ds << endl;
+    cout << "Number of faces: " << icosahedron.NumCell2Ds << endl; */
 
     // Genera il solido geodetico
-    if (!GenerateGeodeticPolyhedronType1(icosahedron, geodetic, num_segments)) {
+    if (!GeodeticPolyhedron1(icosahedron, geodetic, num_segments)) {
         cerr << "Error generating the geodetic solid." << endl;
         return 1;
     }

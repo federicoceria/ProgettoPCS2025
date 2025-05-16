@@ -26,13 +26,13 @@ bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh);
 
 bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
 
-bool GenerateGeodeticPolyhedronType1(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
+bool GeodeticPolyhedron1(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
 
 bool CheckDuplicatesVertex(const std::vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 
 bool CheckDuplicatesEdge(const std::vector<Vector2i>& edges, int v1, int v2, int& current_edge_id);
 
-bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& GoldbergSolid);
+bool GoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& GoldbergSolid);
 
 /*
 bool CheckFaces(PolyhedralMesh& mesh);

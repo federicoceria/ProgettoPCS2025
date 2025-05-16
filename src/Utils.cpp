@@ -49,8 +49,8 @@ bool PolyhedralChoice(const string& path,
 		{
 			// Svuota mesh
 			mesh = PolyhedralMesh(); 
-			if (!GenerateGoldbergClassI(p, q, b, c, mesh)) {
-				cerr << "Error in Goldberg's generation";
+			if (!GoldbergClassI(p, q, b, c, mesh)) {
+				cerr << "Error in Goldberg's polyhedron generation";
 				return false;
 			}
 			return true;
@@ -122,12 +122,14 @@ bool ImportVector(const string& path, PolyhedralMesh& mesh)
 	
 	if(Id1 == 'n' && Id2 == 'n')
 	{
-		PolyhedralChoice(path, mesh, p, q, b, c, walk);
+		if (!PolyhedralChoice(path, mesh, p, q, b, c, walk))
+			return false;
 	}
 	else if(Id1 != 'n' && Id2 != 'n')
 	{
 		walk = true;
-		PolyhedralChoice(path, mesh, p, q, b, c, walk);
+		if (!PolyhedralChoice(path, mesh, p, q, b, c, walk))
+			return false;
 	}
 	else
 	{
@@ -270,7 +272,7 @@ bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool GenerateGeodeticPolyhedronType1(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
+bool GeodeticPolyhedron1(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
 {
     int points_id = 0;
     int edge_id = 0;
@@ -640,11 +642,3 @@ bool ExpSegments(PolyhedralMesh& mesh, const string& FilePath)
 	return true;
 } */
 }
-
-
-
-/* mesh.NumCell0Ds = linesT.size();
-    mesh.Cell0DsCoordinates.reserve(mesh.NumCell0Ds);
-    mesh.Cell0DsId.reserve(mesh.NumCell0Ds);
-	
-*/
