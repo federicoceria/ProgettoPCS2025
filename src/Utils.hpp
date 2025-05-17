@@ -1,32 +1,32 @@
 #pragma once
 
 #include "PolyhedralMesh.hpp"
-#include "UCDUtilities.hpp"
+//#include "UCDUtilities.hpp" questo file non è ancora presente nella src, quindi lo ho commentato
 #include <limits>
 
 using namespace std;
 
 namespace PolyhedralLibrary
 {
-bool ImportVector(const string& path, PolyhedralMesh& mesh);
+bool ParameterSelection(string& path, PolyhedralMesh& mesh);
 
-bool PolyhedralChoice(const string& path,
+bool PolyhedralChoice( string& path,
 						PolyhedralMesh& mesh,
 						const char& p,
 						const char& q, 
 						const char& b,
-						const char & c,
-						string& solidType);
+						const char& c,
+						bool& walk);
 
-bool ImportMesh(const string& path, PolyhedralMesh& mesh);
+bool ImportMesh( string& path, PolyhedralMesh& mesh);
 
-bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh);
+bool ImportCell0Ds( string& path, PolyhedralMesh& mesh);
 
-bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh);
+bool ImportCell1Ds( string& path, PolyhedralMesh& mesh);
 
-bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
+bool ImportCell2Ds( string& path, PolyhedralMesh& mesh);
 
-bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
+/*bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
 
 bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 

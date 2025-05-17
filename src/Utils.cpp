@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include "PolyhedralMesh.hpp"
 
 using namespace std;
 
@@ -13,8 +14,10 @@ using namespace std;
 // ****************************************************************************
 */
 
-namespace PolyhedralLibrary
-bool PolyhedralChoice(const string& path, 
+namespace PolyhedralLibrary{
+
+
+bool PolyhedralChoice( string& path, 
 						PolyhedralMesh& mesh, 
 						const char& p, 
 						const char& q, 
@@ -22,39 +25,39 @@ bool PolyhedralChoice(const string& path,
 						const char& c,
 						bool& walk)
 {
-	string ans;
-	string polihedron;
+	// string ans;  serve??
+	string polyhedron;
 	string filePath;
 	
 	if (p=='3')
 	{
 		switch(q)
 		{
-			case '3':
-				polihedron = "/Tetraedro";
+			case 3:
+				polyhedron = "/Tetraedro";
 				break;
-			case '4':
-				polihedron = "/Ottaedro";
+			case 4:
+				polyhedron = "/Ottaedro";
 				break;
-			case '5':
-				polihedron = "/Icosaedro";
+			case 5:
+				polyhedron = "/Icosaedro";
 				break;
 			default:
 				return false;
 		}
 		
-		filePath = path + polihedron;
-		ImportMesh(filePath, mesh);
+		filePath = path + polyhedron;
+		//ImportMesh(filePath, mesh);
 		
 		return true;
 	}
 	
-	return true;
-}
-
-//*******************************************************************************************
 	
-bool ImportMesh(const string& path, PolyhedralMesh& mesh)
+	return false; 
+}
+//*******************************************************************************************
+	/*verifica che tutti i file siano aperti*/
+bool ImportMesh( string& path, PolyhedralMesh& mesh)
 {
 	if(!ImportCell0Ds(path, mesh))
     {
@@ -79,7 +82,7 @@ bool ImportMesh(const string& path, PolyhedralMesh& mesh)
 
 //****************************************************************************
 
-bool ImportVector(const string& path, PolyhedralMesh& mesh)
+bool ParameterSelection( string& path, PolyhedralMesh& mesh)
 {
 	vector<string> v;
 	char p;
@@ -128,7 +131,7 @@ bool ImportVector(const string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh)
+bool ImportCell0Ds( string& path, PolyhedralMesh& mesh)
 {
 	string filePath = path + "/Cell0Ds.csv";
 	ifstream file0(filePath);
@@ -167,7 +170,7 @@ bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh)
+bool ImportCell1Ds( string& path, PolyhedralMesh& mesh)
 {
 	string filePath = path + "/Cell1Ds.csv";
 	ifstream file1(filePath);
@@ -207,7 +210,7 @@ bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
+bool ImportCell2Ds( string& path, PolyhedralMesh& mesh)
 {
 	string filePath = path + "/Cell2Ds.csv";
 	ifstream file2(filePath);
@@ -260,7 +263,7 @@ bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
+/*bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
 {
     int points_id = 0;
     int edge_id = 0;
@@ -273,8 +276,12 @@ bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh
     GeodeticPolyhedron.Cell0DsId.reserve(total_points);
     GeodeticPolyhedron.Cell0DsCoordinates.reserve(total_points);
 
-    map<array<int, 4>, int> coefficients;
+    map<array<int, 4>, int> coefficients;/*dichiara una mappa chiamata coefficients dove:
+										la chiave è un array di 4 interi (std::array<int, 4>)
+										il valore associato a ogni chiave è un intero
 
+	*/
+	/*
 	// Numero max di facce triangolari da generare
     int total_faces = PlatonicPolyhedron.NumCell2Ds * 2 * num_segments * num_segments;
     GeodeticPolyhedron.Cell2DsId.reserve(total_faces);
