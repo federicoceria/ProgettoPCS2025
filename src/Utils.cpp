@@ -33,20 +33,20 @@ bool PolyhedralChoice( string& path,
 	{
 		switch(q)
 		{
-			case 3:
+			case '3':
 				polyhedron = "/Tetraedro";
 				break;
-			case 4:
+			case '4':
 				polyhedron = "/Ottaedro";
 				break;
-			case 5:
+			case '5':
 				polyhedron = "/Icosaedro";
 				break;
 			default:
 				return false;
 		}
 		
-		filePath = path + polyhedron;
+		path = path + polyhedron;
 		//ImportMesh(filePath, mesh);
 		
 		return true;
@@ -57,7 +57,7 @@ bool PolyhedralChoice( string& path,
 }
 //*******************************************************************************************
 	/*verifica che tutti i file siano aperti*/
-bool ImportMesh( string& path, PolyhedralMesh& mesh)
+bool ImportMesh(const string& path, PolyhedralMesh& mesh)
 {
 	if(!ImportCell0Ds(path, mesh))
     {
@@ -131,7 +131,7 @@ bool ParameterSelection( string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool ImportCell0Ds( string& path, PolyhedralMesh& mesh)
+bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh)
 {
 	string filePath = path + "/Cell0Ds.csv";
 	ifstream file0(filePath);
@@ -170,7 +170,7 @@ bool ImportCell0Ds( string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool ImportCell1Ds( string& path, PolyhedralMesh& mesh)
+bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh)
 {
 	string filePath = path + "/Cell1Ds.csv";
 	ifstream file1(filePath);
@@ -210,7 +210,7 @@ bool ImportCell1Ds( string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-bool ImportCell2Ds( string& path, PolyhedralMesh& mesh)
+bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
 {
 	string filePath = path + "/Cell2Ds.csv";
 	ifstream file2(filePath);
@@ -263,7 +263,7 @@ bool ImportCell2Ds( string& path, PolyhedralMesh& mesh)
 
 // ***************************************************************************
 
-/*bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
+bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticPolyhedron, const int& num_segments)
 {
     int points_id = 0;
     int edge_id = 0;
@@ -271,25 +271,25 @@ bool ImportCell2Ds( string& path, PolyhedralMesh& mesh)
 	int duplicate_id = 0;
 
 	// Calcolo dei punti da generare per ogni faccia del poliedro
-    int total_points = PlatonicPolyhedron.NumCell2Ds * ((num_segments + 1) * (num_segments + 2) / 2);
+    int total_points = PlatonicPolyhedron.NumCell2Ds * ((num_segments + 1) * (num_segments + 2) / 2);/*per capirla
+	ricorda la roba che ha detto cannone(Gaussiana), in poche parrole, la formula corrisponde alla somma dei numeri da 1 a num_segments +1,
+	ove num_segments=b. */
 
     GeodeticPolyhedron.Cell0DsId.reserve(total_points);
     GeodeticPolyhedron.Cell0DsCoordinates.reserve(total_points);
 
     map<array<int, 4>, int> coefficients;/*dichiara una mappa chiamata coefficients dove:
 										la chiave è un array di 4 interi (std::array<int, 4>)
-										il valore associato a ogni chiave è un intero
+										il valore associato a ogni chiave è un intero*/
 
-	*/
-	/*
 	// Numero max di facce triangolari da generare
-    int total_faces = PlatonicPolyhedron.NumCell2Ds * 2 * num_segments * num_segments;
+    int total_faces = 20 * num_segments * num_segments;
     GeodeticPolyhedron.Cell2DsId.reserve(total_faces);
     GeodeticPolyhedron.Cell2DsVertices.resize(total_faces);
     GeodeticPolyhedron.Cell2DsEdges.resize(total_faces);
 
 	// Numero max di spigoli da generare
-    int total_edges = PlatonicPolyhedron.NumCell2Ds * 3 * num_segments * num_segments;
+    int total_edges = 30 * num_segments * num_segments;
     GeodeticPolyhedron.Cell1DsId.reserve(total_edges);
     GeodeticPolyhedron.Cell1DsVertices.reserve(total_edges);
 

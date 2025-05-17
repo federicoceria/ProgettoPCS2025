@@ -11,15 +11,6 @@ int main()
     PolyhedralMesh mesh;
     string path = "/home/appuser/Data/ProgettoPCS2025/Platonic_solids";
 
-    /*poliedral choice modifica il path per referenza in base alla q che ho passato per parametro
-    PolyhedralChoice(const string& path, 
-						PolyhedralMesh& mesh, 
-						const char& p, 
-						const char& q, 
-						const char& b, 
-						const char& c,
-						bool& walk);*/ 
-
     /*prende in input path e mesh, chiede con un cin i paramtri di schlafi, e in base a quelli, grazie 
     alla funzione polyhedralchoice, modifico il path*/
     ParameterSelection(path, mesh);
@@ -70,7 +61,7 @@ int main()
     cout << "Number of edges: " << geodetic.NumCell1Ds << endl;
     cout << "Number of faces: "   << geodetic.NumCell2Ds << endl;*/
 
-    cout << "francesca barra" << endl;
+    cout << "andate tutti al concerto dei POLIFONICI" << endl;
     return 0;
 }
 

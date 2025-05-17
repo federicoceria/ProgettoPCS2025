@@ -8,7 +8,7 @@ using namespace std;
 
 namespace PolyhedralLibrary
 {
-bool ParameterSelection(string& path, PolyhedralMesh& mesh);
+bool ParameterSelection( string& path, PolyhedralMesh& mesh);
 
 bool PolyhedralChoice( string& path,
 						PolyhedralMesh& mesh,
@@ -18,13 +18,13 @@ bool PolyhedralChoice( string& path,
 						const char& c,
 						bool& walk);
 
-bool ImportMesh( string& path, PolyhedralMesh& mesh);
+bool ImportMesh(const string& path, PolyhedralMesh& mesh);
 
-bool ImportCell0Ds( string& path, PolyhedralMesh& mesh);
+bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh);
 
-bool ImportCell1Ds( string& path, PolyhedralMesh& mesh);
+bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh);
 
-bool ImportCell2Ds( string& path, PolyhedralMesh& mesh);
+bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
 
 /*bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
 
