@@ -1,16 +1,16 @@
 #pragma once
 
 #include "PolyhedralMesh.hpp"
-//#include "UCDUtilities.hpp" questo file non è ancora presente nella src, quindi lo ho commentato
+#include "UCDUtilities.hpp" 
 #include <limits>
 
 using namespace std;
 
 namespace PolyhedralLibrary
 {
-bool ParameterSelection( string& path, PolyhedralMesh& mesh);
+bool ParameterSelection(string& path, PolyhedralMesh& mesh);
 
-bool PolyhedralChoice( string& path,
+bool PolyhedralChoice(string& path,
 						PolyhedralMesh& mesh,
 						const char& p,
 						const char& q, 
@@ -26,8 +26,8 @@ bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh);
 
 bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
 
-/*bool GeodeticPolyhedron(const PolyhedralMesh& PlatonicPolyhedron, PolyhedralMesh& GeodeticSolid, const int& num_segments);
-
+bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments);
+/*
 bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 
 bool CheckDuplicatesEdge(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id);
