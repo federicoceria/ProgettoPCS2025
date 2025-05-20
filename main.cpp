@@ -11,7 +11,7 @@ int main()
     PolyhedralMesh mesh;
     string path = "/home/appuser/Data/ProgettoPCS2025/Platonic_solids";
 
-    /*prende in input path e mesh, chiede con un cin i paramtri di schlafi, e in base a quelli, grazie 
+    /*prende in input path e mesh, chiede con un cin i parametri di schlafi, e in base a quelli, grazie 
     alla funzione polyhedralchoice, modifico il path*/
     ParameterSelection(path, mesh);
 

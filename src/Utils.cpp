@@ -56,7 +56,7 @@ bool PolyhedralChoice( string& path,
 	return false; 
 }
 //*******************************************************************************************
-	/*verifica che tutti i file siano aperti*/
+/*verifica che tutti i file siano aperti*/
 bool ImportMesh(const string& path, PolyhedralMesh& mesh)
 {
 	if(!ImportCell0Ds(path, mesh))
@@ -272,59 +272,59 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 	// Calcolo dei punti da generare per ogni faccia del poliedro
     int total_points = Platonic.NumCell2Ds * ((segments + 1) * (segments + 2) / 2);/*somma Gaussiana: 
-	in poche parole, la formula corrisponde alla somma dei numeri da 1 a segments +1, ove segments=b. */
+	in poche parole, la formula corrisponde alla somma dei numeri da 1 a segments +1, ove segments=b.  */
 
 	// allochiamo spazio in memoria per gli Id e le coordinate delle celle 0D del poliedro geodetico.
     Geodetic.Cell0DsId.reserve(total_points);
-    Geodetic.Cell0DsCoordinates = MatrixXd::Zero(3, total_points);
+    Geodetic.Cell0DsCoordinates.reserve(total_points);
 
-    map<array<int, 4>, int> point_coefficients;/*dichiara una mappa chiamata coefficients dove:
+    map<array<int, 4>, int> coefficients;/*dichiara una mappa chiamata coefficients dove:
 	la chiave è un array di 4 interi (std::array<int, 4>), mentre il valore associato a ogni chiave è un intero*/
 
 	// Numero max di spigoli da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
     int total_edges = 30 * segments * segments;
     Geodetic.Cell1DsId.reserve(total_edges);
-    Geodetic.Cell1DsVertices.reserve(total_edges);
+    Geodetic.Cell1DsVertices.reserve(total_edges); //prima era Geodetic.Cell0DsCoordinates = MatrixXd::Zero(3, total_points);
+
 	
 	// Numero max di facce triangolari da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
     int total_faces = 20 * segments * segments;
-    Geodetic.Cell2DsId.reserve(total_faces);
+    Geodetic.Cell2DsId.reserve(total_faces); 
     Geodetic.Cell2DsVertices.resize(total_faces);
     Geodetic.Cell2DsEdges.resize(total_faces);
 
 
 	// Ciclo su ogni faccia del poliedro
-    for (const auto& j : Platonic.Cell2DsId)
+    for (const auto& id : Platonic.Cell2DsId)
     {
-		// Estrazione dei 3 vertici dalla faccia corrente (tramite l'estrazione della j-esima colonna) e salvataggio di essi in vettori dinamici
-        Vector3d Vert1 = Platonic.Cell0DsCoordinates.col(Platonic.Cell2DsVertices[j][0]);
-        Vector3d Vert2 = Platonic.Cell0DsCoordinates.col(Platonic.Cell2DsVertices[j][1]);
-        Vector3d Vert3 = Platonic.Cell0DsCoordinates.col(Platonic.Cell2DsVertices[j][2]);
+		// Estrazione dei 3 vertici dalla faccia corrente (tramite l'estrazione della j-esima colonna) e salvataggio di essi in vettori       
+		Vector3d v1 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][0]]; // Prima era e anche quelli sotto Vector3d Vert1 = Platonic.Cell0DsCoordinates.col(Platonic.Cell2DsVertices[j][0]);
+        Vector3d v2 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][1]];
+        Vector3d v3 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][2]];
 
 
 		// Genera i punti interni alla faccia con suddivisione baricentrica
-        for (int i = 0; i <= segments; i++)   /* per ale e fede: ho cambiato da ++i a ++j (semanticamente è la stessa cosa, ++i è più efficiente per tipi complessi, 
-												ma con vettori e int non cambia niente, quindi teniamo i piedi per terra :) !!!!!!!DA CANCELLARE!!!!!!! */
+        for (int i = 0; i <= segments; i++)  
         {
             for (int j = 0; j <= i; j++)	/* ciclo in i: per ogni i da 0 a b genera i punti interni */
             {
-                int a = segments - i;  /* Dato un triangolo con vertici: Vert1, Vert2, Vert3, qualsiasi punto P nel piano del triangolo può essere scritto come: 
-										P = a * Vert1 + b * Vert2 + c*Vert3, dove i pesi sommano a 1, e se il punto coincide con uno dei tre vertici, allora il 
+                int a = segments - i;  /* Dato un triangolo con vertici: v1, v2, v3, qualsiasi punto P nel piano del triangolo può essere scritto come: 
+										P = a * v1 + b * v2 + c*v3, dove i pesi sommano a 1, e se il punto coincide con uno dei tre vertici, allora il 
 										peso di tale vertice è 1 e gli altri due sono 0 (ad esempio, la prima iterazione del ciclo ha a=segments, b=c=0, dunque 
-										stiamo generando Vert1. */      
+										stiamo generando v1. */      
 				int b = i - j;
                 int c = j;
 
 				/* Calcolo del punto tramite combinazione lineare (a e b diventano double per evitare problemi con la divisione); dividiamo per segments in modo da avere
 				la normalizzazione (infatti a, b e c sommano a segments, mentre dovrebbero sommare a 1) */
-                Vector3d Point = (double(a) / segments) * Vert1 + (double(b) / segments) * Vert2 + (double(c) / segments) * Vert3;
+                Vector3d Point = (double(a) / segments) * v1 + (double(b) / segments) * v2 + (double(c) / segments) * v3;
 
 				// Chiave della mappa: coefficienti + ID della faccia
                 array<int, 4> coeffs;
 				coeffs[0] = a;
 				coeffs[1] = b;
 				coeffs[2] = c;
-				coeffs[3] = Id;
+				coeffs[3] = id;
 
 				/* Il procedimento implementato non garantisce che non ci sia sovrapposizione di punti: per questo, si richiama la funzione CheckDuplicatesVertex */ 
                 if (!CheckDuplicatesVertex(Geodetic.Cell0DsCoordinates, Point, points_id, duplicate_id))
@@ -343,8 +343,15 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
         }
     }
 
-	// Costruzione dei triangoli all'interno di ogni faccia originale
-    for (const auto& id : Platonic.Cell2DsId)
+	// Triangolazione
+	GenerateTriangles(Platonic, Geodetic, coefficients, segments, edges_id, faces_id);
+
+	return true;
+}
+
+void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id)
+{
+for (const auto& id : Platonic.Cell2DsId)
     {
         for (int i = 0; i < segments; i++)
         {
@@ -361,7 +368,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 				Geodetic.Cell2DsId.push_back(faces_id);
 				Geodetic.Cell2DsNumVertices[faces_id] = 3;  // inizializziamo le facce a triangolari, così dopo cicleremo direttamente su quelle
 				Geodetic.Cell2DsNumEdges[faces_id] = 3;
-				vector<int> Vertices = {Vertex1, Vertex2, Vertex3};
+				vector<int> Vertices = {v1, v2, v3};
 				Geodetic.Cell2DsVertices[faces_id] = Vertices;
 				Geodetic.Cell2DsEdges[faces_id].resize(3);  // potevamo già crearle di dimensione 3? secondo ale si
 				
@@ -380,7 +387,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                     {
                         Geodetic.Cell1DsId.push_back(edges_id);
                         Geodetic.Cell1DsVertices.push_back(Vector2i(v_start, v_end));
-						GeodeticSolid.Cell2DsEdges[faces_id][k] = edges_id;  // andiamo a inserire gli id dei vertici
+						Geodetic.Cell2DsEdges[faces_id][k] = edges_id;  // andiamo a inserire gli id dei vertici
                         Geodetic.NumCell1Ds++;
                         edges_id++;
                     }
@@ -391,16 +398,16 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                 // Triangolo “a punta in giù”
                 if (i > 0)     // per i=0 non funziona: i triangoli a punta in giù non toccano i vertici della faccia che stanno triangolando, ma solo punti interni dei lati
                 {
-                    int Vert4 = coefficients[{num_segments - (i - 1) - j, i - 1, j, static_cast<int>(id)}];
+                    int v4 = coefficients[{segments - (i - 1) - j, i - 1, j, id}];
 					/*i - 1: stai “salendo” di una riga nella griglia triangolare
 					j: stessa colonna
-					num_segments - (i - 1) - j: mantiene la condizione a + b + c = num_segments
-					In pratica, Vert4 è il vertice interno che chiude il triangolo capovolto (v. sotto*/
+					segments - (i - 1) - j: mantiene la condizione a + b + c = segments
+					In pratica, v4 è il vertice interno che chiude il triangolo capovolto (v. sotto*/
 					Geodetic.NumCell2Ds++;
                     Geodetic.Cell2DsId.push_back(faces_id);
                     Geodetic.Cell2DsNumVertices[faces_id] = 3;
 					Geodetic.Cell2DsNumEdges[faces_id] = 3;
-					Vertices[2] = Vert4;
+					Vertices[2] = v4;
 					Geodetic.Cell2DsVertices[faces_id] = Vertices;
                     Geodetic.Cell2DsEdges[faces_id].resize(3);
 
@@ -418,7 +425,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                         {
                             Geodetic.Cell1DsId.push_back(edges_id);
                             Geodetic.Cell1DsVertices.push_back(Vector2i(v_start, v_end));
-							GeodeticSolid.Cell2DsEdges[faces_id][k] = edges_id;
+							Geodetic.Cell2DsEdges[faces_id][k] = edges_id;
                             Geodetic.NumCell1Ds++;
                             edges_id++;
                         }
@@ -430,13 +437,11 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
             }
         }
     }
-
-    return true;
 }
 
 // ***************************************************************************
 
-bool CheckDuplicatesVertex(const std::vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)
+bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)
 {
     for (int i = 0; i < current_id; ++i)
     {
@@ -451,7 +456,7 @@ bool CheckDuplicatesVertex(const std::vector<Vector3d>& coords, const Vector3d& 
 
 // ***************************************************************************
 
-bool CheckDuplicatesEdge(const std::vector<Vector2i>& edges, int v1, int v2, int& current_edge_id)
+bool CheckDuplicatesEdge(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id)
 {
     for (int i = 0; i < current_edge_id; ++i)
     {

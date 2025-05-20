@@ -11,24 +11,24 @@ namespace PolyhedralLibrary {
 struct PolyhedralMesh
 {
 	// Celle 0D
-    unsigned int NumCell0Ds = 0;
-	vector<unsigned int> Cell0DsId = {};
-	MatrixXd Cell0DsCoordinates = {}; 
+    int NumCell0Ds = 0;
+	vector<int> Cell0DsId = {};
+	vector<Vector3d> Cell0DsCoordinates = {};
 	
 	
 	// Celle 1D
-    unsigned int NumCell1Ds = 0;
-	vector<unsigned int> Cell1DsId = {};
-	MatrixXi Cell1DsVertices = {};
+    int NumCell1Ds = 0;
+	vector<int> Cell1DsId = {};
+	vector<Vector2i> Cell1DsVertices = {};
 	
 	
 	// Celle 2D
-    unsigned int NumCell2Ds = 0;
-	vector<unsigned int> Cell2DsId = {};
-	vector<unsigned int> Cell2DsNumVertices = {};
-	vector<unsigned int> Cell2DsNumEdges = {};
-	vector<vector<unsigned int>> Cell2DsVertices = {};  // vertici e spigoli delle celle bidimensionali
-	vector<vector<unsigned int>> Cell2DsEdges = {};
+    int NumCell2Ds = 0;
+	vector<int> Cell2DsId = {};
+	vector<int> Cell2DsNumVertices = {};
+	vector<int> Cell2DsNumEdges = {};
+	vector<vector<int>> Cell2DsVertices = {};  // vertici e spigoli delle celle bidimensionali
+	vector<vector<int>> Cell2DsEdges = {};
 		
 	double epsilon = 1.0e-8; 
 };
