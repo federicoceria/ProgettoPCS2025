@@ -363,8 +363,9 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 				Geodetic.Cell2DsNumEdges[faces_id] = 3;
 				vector<int> Vertices = {Vertex1, Vertex2, Vertex3};
 				Geodetic.Cell2DsVertices[faces_id] = Vertices;
-				Geodetic.Cell2DsEdges[faces_id].resize(3);  // potevamo già crearle di dimensione 3?
-
+				Geodetic.Cell2DsEdges[faces_id].resize(3);  // potevamo già crearle di dimensione 3? secondo ale si
+				
+				//crezione delle facce della triangolazione
                 for (int k = 0; k < 3; k++)
                 {
                     int v_start = Geodetic.Cell2DsVertices[faces_id][k];
@@ -391,6 +392,10 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                 if (i > 0)     // per i=0 non funziona: i triangoli a punta in giù non toccano i vertici della faccia che stanno triangolando, ma solo punti interni dei lati
                 {
                     int Vert4 = coefficients[{num_segments - (i - 1) - j, i - 1, j, static_cast<int>(id)}];
+					/*i - 1: stai “salendo” di una riga nella griglia triangolare
+					j: stessa colonna
+					num_segments - (i - 1) - j: mantiene la condizione a + b + c = num_segments
+					In pratica, Vert4 è il vertice interno che chiude il triangolo capovolto (v. sotto*/
 					Geodetic.NumCell2Ds++;
                     Geodetic.Cell2DsId.push_back(faces_id);
                     Geodetic.Cell2DsNumVertices[faces_id] = 3;
