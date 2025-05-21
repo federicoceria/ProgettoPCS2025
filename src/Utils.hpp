@@ -30,11 +30,13 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id);
 
-bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
+bool CheckVertices(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 
-bool CheckDuplicatesEdge(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id);
+bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id);
 
-bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& GoldbergSolid);
+void Projection(PolyhedralMesh& mesh);
+
+bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& Goldberg);
 
 /*
 bool CheckFaces(PolyhedralMesh& mesh);

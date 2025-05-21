@@ -281,8 +281,8 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 	// Numero max di spigoli da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
     int total_edges = 30 * segments * segments;
-    Geodetic.Cell1DsId.reserve(total_edges);
-    Geodetic.Cell1DsVertices.reserve(total_edges); //prima era Geodetic.Cell0DsCoordinates = MatrixXd::Zero(3, total_points);
+    Geodetic.Cell1DsId.reserve(total_edges); 
+    Geodetic.Cell1DsVertices.reserve(total_edges); 
 
 	
 	// Numero max di facce triangolari da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
@@ -296,7 +296,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
     for (const auto& id : Platonic.Cell2DsId)
     {
 		// Estrazione dei 3 vertici dalla faccia corrente (tramite l'estrazione della j-esima colonna) e salvataggio di essi in vettori       
-		Vector3d v1 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][0]]; // Prima era e anche quelli sotto Vector3d Vert1 = Platonic.Cell0DsCoordinates.col(Platonic.Cell2DsVertices[j][0]);
+		Vector3d v1 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][0]]; 
         Vector3d v2 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][1]];
         Vector3d v3 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][2]];
 
@@ -325,7 +325,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 				coeffs[3] = id;
 
 				/* Il procedimento implementato non garantisce che non ci sia sovrapposizione di punti: per questo, si richiama la funzione CheckDuplicatesVertex */ 
-                if (!CheckDuplicatesVertex(Geodetic.Cell0DsCoordinates, Point, points_id, duplicate_id))
+                if (!CheckVertices(Geodetic.Cell0DsCoordinates, Point, points_id, duplicate_id))
                 {
                     coefficients[coeffs] = points_id;  // assegno all'array l'id corrente (all'inizio, points_id è inizializzato a 0) 
                     Geodetic.Cell0DsId.push_back(points_id);   // aggiungo l'array in coda agli id del poliedro
@@ -341,6 +341,8 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
         }
     }
 
+	// Normalizzazione degli elementi del poliedro
+	Projection(Geodetic);
 	// Triangolazione
 	GenerateTriangles(Platonic, Geodetic, coefficients, segments, edges_id, faces_id);
 
@@ -381,7 +383,7 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 					else
 						v_end = Geodetic.Cell2DsVertices[faces_id][k+1];  // altrimenti, lo spigolo legato alla k-esima faccia si ricollega al vertice iniziale della faccia successiva
 					
-                    if (!CheckDuplicatesEdge(Geodetic.Cell1DsVertices, v_start, v_end, edges_id))   // check se lo spigolo non è già esistente
+                    if (!CheckEdges(Geodetic.Cell1DsVertices, v_start, v_end, edges_id))   // check se lo spigolo non è già esistente
                     {
                         Geodetic.Cell1DsId.push_back(edges_id);
                         Geodetic.Cell1DsVertices.push_back(Vector2i(v_start, v_end));
@@ -419,7 +421,7 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 						else
 							v_end = Geodetic.Cell2DsVertices[faces_id][k+1];
 						
-                        if (!CheckDuplicatesEdge(Geodetic.Cell1DsVertices, v_start, v_end, edges_id))
+                        if (!CheckEdges(Geodetic.Cell1DsVertices, v_start, v_end, edges_id))
                         {
                             Geodetic.Cell1DsId.push_back(edges_id);
                             Geodetic.Cell1DsVertices.push_back(Vector2i(v_start, v_end));
@@ -439,11 +441,12 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 
 // ***************************************************************************
 
-bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)
+bool CheckVertices(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)
 {
-    for (int i = 0; i < current_id; ++i)
+	double eps = 1e-8;
+    for (int i = 0; i < current_id; i++)
     {
-        if ((coords[i] - point).norm() < 1e-8)
+        if ((coords[i] - point).norm() < eps)
         {
             duplicate_id = i;
             return true;
@@ -454,9 +457,9 @@ bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point
 
 // ***************************************************************************
 
-bool CheckDuplicatesEdge(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id)
+bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id)
 {
-    for (int i = 0; i < current_edge_id; ++i)
+    for (int i = 0; i < current_edge_id; i++)
     {
         int a = edges[i][0];
         int b = edges[i][1];
@@ -468,7 +471,18 @@ bool CheckDuplicatesEdge(const vector<Vector2i>& edges, int v1, int v2, int& cur
     return false;
 }
 
-bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& GoldbergSolid) 
+void Projection(PolyhedralMesh& mesh)
+{
+	for(int i=0; i < mesh.NumCell0Ds; i++)
+	{
+		double Norm = (mesh.Cell0DsCoordinates[i]).norm();
+		mesh.Cell0DsCoordinates[i][0] = mesh.Cell0DsCoordinates[i][0]/Norm;
+		mesh.Cell0DsCoordinates[i][1] = mesh.Cell0DsCoordinates[i][1]/Norm;
+		mesh.Cell0DsCoordinates[i][2] = mesh.Cell0DsCoordinates[i][2]/Norm;
+	}
+}
+
+bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& Goldberg) 
 {
 	return true;
 }

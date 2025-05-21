@@ -28,9 +28,7 @@ struct PolyhedralMesh
 	vector<int> Cell2DsNumVertices = {};
 	vector<int> Cell2DsNumEdges = {};
 	vector<vector<int>> Cell2DsVertices = {};  // vertici e spigoli delle celle bidimensionali
-	vector<vector<int>> Cell2DsEdges = {};
-		
-	double epsilon = 1.0e-8; 
+	vector<vector<int>> Cell2DsEdges = {}; 
 };
 
 }
