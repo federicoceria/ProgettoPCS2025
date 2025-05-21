@@ -25,7 +25,6 @@ bool PolyhedralChoice( string& path,
 						const char& c,
 						bool& walk)
 {
-	// string ans;  serve??
 	string polyhedron;
 	string filePath;
 	
@@ -47,7 +46,6 @@ bool PolyhedralChoice( string& path,
 		}
 		
 		path = path + polyhedron;
-		//ImportMesh(filePath, mesh);
 		
 		return true;
 	}
@@ -95,19 +93,19 @@ bool ParameterSelection(string& path, PolyhedralMesh& mesh)
 	bool walk = false;
 	
 	cout << "Insert each parameter when asked and push enter to confirm." << endl;
-	cout << "Insert p: ";
+	cout << "Insert p: " << endl;
 	cin >> p;
-	cout << "Insert q: ";
+	cout << "Insert q: " << endl;
 	cin >> q;
-	cout << "Insert b: ";
+	cout << "Insert b: " << endl;
 	cin >> b;
-	cout << "Insert c: ";
+	cout << "Insert c: " << endl;
 	cin >> c;
 	
-	cout << "If you don't want to evaluate the shortest path between two vertices, please digit 'n' and enter it in the next two insertions."; 
-	cout << "Insert Id1: ";
+	cout << "If you don't want to evaluate the shortest path between two vertices, please digit 'n' and enter it in the next two insertions." << endl; 
+	cout << "Insert Id1: " << endl;
 	cin >> Id1;
-	cout << "Insert Id2: ";
+	cout << "Insert Id2: " << endl;
 	cin >> Id2;
 	
 	if(Id1 == 'n' && Id2 == 'n')
@@ -234,21 +232,21 @@ bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
     mesh.Cell2DsId.reserve(mesh.NumCell2Ds);
     
     char tmp;
-    unsigned int Id;
+    int Id;
     
 	for(const auto& l : lines)
 	{
 		stringstream ss(l);
 		ss >> Id >> tmp;
 
-		vector<unsigned int> Vertices(3);
-		for(unsigned int i = 0; i < 3; i++)
+		vector<int> Vertices(3);
+		for(int i = 0; i < 3; i++)
 		{
 		    ss >> Vertices[i] >> tmp;
 		}
 		
-		vector<unsigned int> Edges(3);
-		for(unsigned int i = 0; i < 3; i++)
+		vector<int> Edges(3);
+		for(int i = 0; i < 3; i++)
 		{
 			ss >> Edges[i] >> tmp;
 		}
@@ -349,9 +347,9 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 	return true;
 }
 
-void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id)
+void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id)
 {
-for (const auto& id : Platonic.Cell2DsId)
+	for (const auto& id : Platonic.Cell2DsId)
     {
         for (int i = 0; i < segments; i++)
         {

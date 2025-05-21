@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PolyhedralMesh.hpp"
-#include "UCDUtilities.hpp" 
+//#include "UCDUtilities.hpp" 
 #include <limits>
 
 using namespace std;
@@ -28,7 +28,7 @@ bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
 
 bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments);
 
-void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id);
+void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id);
 
 bool CheckDuplicatesVertex(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 
