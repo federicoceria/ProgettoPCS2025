@@ -20,7 +20,7 @@ int main()
     Inoltre questa controlla anche che il salvataggio avvenga correttamente*/
     ImportMesh(path, mesh);
     
-    /*ricordiamoci di controllare gli imput mettendo l'errore se b e c !=0*/
+    /*ricordiamoci di controllare gli imput mettendo l'errore se b e c !=0* /
     if(b==0 && c!=0)
     {
         GeodeticPolyhedron(mesh, Geodetic, c);
@@ -36,7 +36,7 @@ int main()
         cout << "Number of vertices: " << Geodetic.NumCell0Ds << endl;
         cout << "Number of edges: " << Geodetic.NumCell1Ds << endl;
         cout << "Number of faces: "   << Geodetic.NumCell2Ds << endl;
-    }
+    }*/
     //else
         //seconda classe
 

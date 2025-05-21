@@ -32,7 +32,7 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 
 bool CheckVertices(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 
-bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id);
+bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id, int& existing_edge_id);
 
 void Projection(PolyhedralMesh& mesh);
 
