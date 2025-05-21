@@ -268,7 +268,11 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
     int faces_id = 0;
 	int duplicate_id = 0;
 
-	// Calcolo dei punti da generare per ogni faccia del poliedro
+	/*NOTA!!!!!! A QUESTO PUNTO CI SARà DA FARE UN IF, IN MODO CHE IN BASE ALLA q FORNITA SI RISERVI PER IL VETTORE LO SPAZIO CORRETTO!!!!*/
+	//QUESTO è IL CASO DELL'ICOESAEDRO (PER ORA), SI DOVRà CONTROLLARE LA CORRETTEZZA DEGLI INPUT
+
+	// Calcolo il numero dei punti da generare per il poliedro in generale,
+	//moltiplicando il numero di punti su una faccia per il numero di facce
     int total_points = Platonic.NumCell2Ds * ((segments + 1) * (segments + 2) / 2);/*somma Gaussiana: 
 	in poche parole, la formula corrisponde alla somma dei numeri da 1 a segments +1, ove segments=b.  */
 
@@ -278,22 +282,26 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
     map<array<int, 4>, int> coefficients;/*dichiara una mappa chiamata coefficients dove:
 	la chiave è un array di 4 interi (std::array<int, 4>), mentre il valore associato a ogni chiave è un intero*/
+	//questa mappa associa ad ogni punto creato in points_id con un vettore di 4 interi, i cui 4 interi corrispondono ad a,b,c, Idcell2d, ovvero l'Id della faccia
 
+	// allochiamo spazio in memoria per gli Id e i vertici delle celle 1D del poliedro geodetico.
 	// Numero max di spigoli da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
-    int total_edges = 30 * segments * segments;
+    int total_edges = 30 * segments * segments; //questa formula è scritta nel pdf
     Geodetic.Cell1DsId.reserve(total_edges); 
     Geodetic.Cell1DsVertices.reserve(total_edges); 
 
-	
+	// allochiamo spazio in memoria per gli Id ,i lati e i vertici delle celle 2D del poliedro geodetico.
 	// Numero max di facce triangolari da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
-    int total_faces = 20 * segments * segments;
+    int total_faces = 20 * segments * segments; //questa formula è scritta nel pdf
     Geodetic.Cell2DsId.reserve(total_faces); 
     Geodetic.Cell2DsVertices.resize(total_faces);
     Geodetic.Cell2DsEdges.resize(total_faces);
 
+	//QUA CI ANDREBBE LA FINE DEGLI IF
 
-	// Ciclo su ogni faccia del poliedro
-    for (const auto& id : Platonic.Cell2DsId)
+	// Ciclo su ogni faccia del poliedro (Platonic)
+    for (const auto& id : Platonic.Cell2DsId) // QUESTO FOR è DA MODIFICARE, METTERE ALTRO PARAMETRO AL POSTO DI ID, E SCRIVERE POI DENTRO
+											//QUALCOSA PER L'INCREMENTO DEL ID DELLA FACCIA
     {
 		// Estrazione dei 3 vertici dalla faccia corrente (tramite l'estrazione della j-esima colonna) e salvataggio di essi in vettori       
 		Vector3d v1 = Platonic.Cell0DsCoordinates[Platonic.Cell2DsVertices[id][0]]; 
@@ -302,20 +310,21 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 
 		// Genera i punti interni alla faccia con suddivisione baricentrica
-        for (int i = 0; i <= segments; i++)  
+        for (int i = 0; i <= segments; i++)  //<=segments perchè è il numero (b) di divisioni che vogliamo fare su ogni spigolo
         {
             for (int j = 0; j <= i; j++)	/* ciclo in i: per ogni i da 0 a b genera i punti interni */
             {
                 int a = segments - i;  /* Dato un triangolo con vertici: v1, v2, v3, qualsiasi punto P nel piano del triangolo può essere scritto come: 
-										P = a * v1 + b * v2 + c*v3, dove i pesi sommano a 1, e se il punto coincide con uno dei tre vertici, allora il 
-										peso di tale vertice è 1 e gli altri due sono 0 (ad esempio, la prima iterazione del ciclo ha a=segments, b=c=0, dunque 
-										stiamo generando v1. */      
+										P = a * v1 + b * v2 + c*v3, dove i pesi sommano a 1. ora per non utilizzare dei double ma degli int, utilizziamo la
+										divisione per segments. a questo punto ossiamo disegnare tutte i punti presenti su di una faccia del poliedro attraverso
+										la combinazioni dei valori a,b,c moltiplicate per i vertici */      
 				int b = i - j;
                 int c = j;
 
 				/* Calcolo del punto tramite combinazione lineare (a e b diventano double per evitare problemi con la divisione); dividiamo per segments in modo da avere
 				la normalizzazione (infatti a, b e c sommano a segments, mentre dovrebbero sommare a 1) */
-                Vector3d Point = (double(a) / segments) * v1 + (double(b) / segments) * v2 + (double(c) / segments) * v3;
+                Vector3d Point = (double(a) / segments) * v1 + (double(b) / segments) * v2 + (double(c) / segments) * v3; /*Ho così creato il vettore
+				di coordinate corrispondente al punto creato (funzione di a,b,c,IDfaccia)*/ 
 
 				// Chiave della mappa: coefficienti + ID della faccia
                 array<int, 4> coeffs;
@@ -324,29 +333,41 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 				coeffs[2] = c;
 				coeffs[3] = id;
 
-				/* Il procedimento implementato non garantisce che non ci sia sovrapposizione di punti: per questo, si richiama la funzione CheckDuplicatesVertex */ 
+				/* Il procedimento implementato non garantisce che non ci sia sovrapposizione di punti: per questo, si richiama la funzione CheckDuplicatesVertex,
+				questa controlla che il vertice non sia duplicato. se è duplicato  */ 
                 if (!CheckVertices(Geodetic.Cell0DsCoordinates, Point, points_id, duplicate_id))
                 {
                     coefficients[coeffs] = points_id;  // assegno all'array l'id corrente (all'inizio, points_id è inizializzato a 0) 
-                    Geodetic.Cell0DsId.push_back(points_id);   // aggiungo l'array in coda agli id del poliedro
-                    Geodetic.Cell0DsCoordinates.push_back(Point);  // aggiungo il punto in coda al poliedro geodetico (si può anche pensare di inserire le coordinate una per una?)
+                    Geodetic.Cell0DsId.push_back(points_id);   // aggiungo il nuovo punto (points_id) in coda agli id del poliedro
+                    Geodetic.Cell0DsCoordinates.push_back(Point);  // aggiungo il punto in coda al poliedro geodetico (si può anche pensare di inserire le coordinate una per una?mi sembra decisamente inutile ma volendo...(ale))
                     Geodetic.NumCell0Ds++;   // incremento il contatore di celle 0D del poliedro geodetico e quello dei punti
                     points_id++;
                 }
                 else
                 {
-                    coefficients[coeffs] = duplicate_id;  // lo aggiungiamo tra i punti duplicati
-                }
+                    coefficients[coeffs] = duplicate_id;  // lo aggiungiamo tra i punti duplicati, l'id corretto è stato preso dentro alla funzione CheckVertices
+                } //A QUESTO PUNTO HO CREATO TUTTI I PUNTI PER LA TRIANGOLARIZZAZIONE
             }
         }
     }
 
-	// Normalizzazione degli elementi del poliedro
+	// Normalizzazione degli elementi del poliedro. ATTENZIONE PERCHè TUTTI I VERTICI DEL GEODETUCO DEVONO ESSERE NORMALIZZATI!! (dovrebbe essere già così)
 	Projection(Geodetic);
 	// Triangolazione
 	GenerateTriangles(Platonic, Geodetic, coefficients, segments, edges_id, faces_id);
 
 	return true;
+}
+
+void Projection(PolyhedralMesh& mesh)
+{
+	for(int i=0; i < mesh.NumCell0Ds; i++)
+	{
+		double Norm = (mesh.Cell0DsCoordinates[i]).norm();
+		mesh.Cell0DsCoordinates[i][0] = mesh.Cell0DsCoordinates[i][0]/Norm;
+		mesh.Cell0DsCoordinates[i][1] = mesh.Cell0DsCoordinates[i][1]/Norm;
+		mesh.Cell0DsCoordinates[i][2] = mesh.Cell0DsCoordinates[i][2]/Norm;
+	}
 }
 
 void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id)
@@ -471,16 +492,7 @@ bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge
     return false;
 }
 
-void Projection(PolyhedralMesh& mesh)
-{
-	for(int i=0; i < mesh.NumCell0Ds; i++)
-	{
-		double Norm = (mesh.Cell0DsCoordinates[i]).norm();
-		mesh.Cell0DsCoordinates[i][0] = mesh.Cell0DsCoordinates[i][0]/Norm;
-		mesh.Cell0DsCoordinates[i][1] = mesh.Cell0DsCoordinates[i][1]/Norm;
-		mesh.Cell0DsCoordinates[i][2] = mesh.Cell0DsCoordinates[i][2]/Norm;
-	}
-}
+
 
 bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& Goldberg) 
 {
