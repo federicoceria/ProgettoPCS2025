@@ -522,6 +522,172 @@ ove a = segments -i -j;
 
 // ***************************************************************************
 
+void GenerateDualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
+{
+    // Identificatori iniziali per il duale
+    int center_id = 0;  // Identificatore per i baricentri (nuovi vertici)
+    int new_face_id = 0;  // Identificatore per le nuove facce
+    int new_edge_id = 0;  // Identificatore per gli spigoli
+	int existing_edge_id = -1; // Variabile per salvare l'edge esistente
+
+    // Il duale ha tanti vertici quante facce ha il poliedro originale
+    DualMesh.NumCell0Ds = InputMesh.NumCell2Ds;
+    DualMesh.Cell0DsId.resize(DualMesh.NumCell0Ds);
+    DualMesh.Cell0DsCoordinates.resize(DualMesh.NumCell0Ds);
+
+    // Gli spigoli nel duale rimangono in numero uguale a quelli del poliedro originale
+    DualMesh.NumCell1Ds = InputMesh.NumCell1Ds;
+	DualMesh.Cell1DsId.resize(DualMesh.NumCell1Ds);
+	DualMesh.Cell1DsVertices.resize(DualMesh.NumCell1Ds);
+
+    // Il duale ha tante facce quante sono i vertici del poliedro originale
+    DualMesh.NumCell2Ds = InputMesh.NumCell0Ds;
+    DualMesh.Cell2DsId.resize(DualMesh.NumCell2Ds);
+    DualMesh.Cell2DsVertices.resize(DualMesh.NumCell2Ds);
+    DualMesh.Cell2DsEdges.resize(DualMesh.NumCell2Ds);
+
+    // Mappa per associare le facce del poliedro ai baricentri nel duale (tramite gli id)
+    map<int, int> FaceCenters;
+	// Itera su tutte le facce del poliedro
+    for (const auto& face_id : InputMesh.Cell2DsId) {
+        Vector3d centro_id = Vector3d::Zero();   // Inizializza il baricentro a (0,0,0)
+
+        // Itera su tutti i vertici della faccia corrente per calcolarne il baricentro
+        for (size_t j = 0; j < InputMesh.Cell2DsVertices[face_id].size(); j++) {
+			// Somma le coordinate di ciascun vertice della faccia
+            centro_id += InputMesh.Cell0DsCoordinates[InputMesh.Cell2DsVertices[face_id][j]];
+        }
+
+		// Divide la somma delle coordinate per il numero di vertici per ottenere la media
+        centro_id /= InputMesh.Cell2DsVertices[face_id].size(); 
+
+        // Salva l'ID del baricentro nel duale
+        DualMesh.Cell0DsId[center_id] = center_id;
+        DualMesh.Cell0DsCoordinates[center_id] = centro_id;
+
+        // Associa l'ID del baricentro alla faccia originale
+        FaceCenters[face_id] = center_id;
+
+		// Incrementa il contatore per il prossimo baricentro
+        center_id++;
+    }
+
+	// Ora creiamo le facce del duale utilizzando i baricentri trovati sopra
+	// Itera attraverso tutti gli id dei vertici del poliedro originale, perchè ogni faccia nel poliedro duale corrisponde ad un vertice dell'originale
+    for (const auto& vertex_id : InputMesh.Cell0DsId) {
+        vector<int> AdjacentFaces;  //vettore che conterrà gli ID delle facce adiacenti al vertice corrente
+
+        // Trova tutte le facce che contengono questo vertice
+		// Itera sulle facce del poliedro originale
+        for (const auto& face_id : InputMesh.Cell2DsId) {
+			// Scorre tutti i vertici della faccia corrente (face_id)
+            for (size_t j = 0; j < InputMesh.Cell2DsVertices[face_id].size(); j++) {
+				/* Confronta vertex_id con ogni vertice della faccia corrente,
+				se vero face_id contiene vertex_id, allora aggiungo l'id della faccia (face_id) ad AdjacentFaces*/ 
+                if (InputMesh.Cell2DsVertices[face_id][j] == vertex_id) {
+                    AdjacentFaces.push_back(face_id);
+                    break;
+                }
+            }
+        }
+
+        // Le facce adiacenti non sono necessariamente ordinate! Le ordiniamo con una funzione dedicata
+        vector<int> SortedFaces;
+        Sort_Faces(AdjacentFaces, SortedFaces, InputMesh);
+
+        // Creiamo una nuova faccia nel duale, che sarà composta dai baricentri delle facce trovate sopra
+        vector<int> NewDualVertices; // conterrà i vertici della nuova faccia nel duale
+		//Itera attraverso gli id di tutte le facce ordinate
+        for (const auto& sorted_face : SortedFaces)
+            NewDualVertices.push_back(FaceCenters[sorted_face]); // usa gli id dei baricentri
+
+		// Assegna un ID alla nuova faccia nel poliedro duale
+        DualMesh.Cell2DsId[new_face_id] = new_face_id;
+		// Salva i vertici della nuova faccia nel poliedro duale
+        DualMesh.Cell2DsVertices[new_face_id] = NewDualVertices;
+		// Alloco spazio per gli spigoli
+        DualMesh.Cell2DsEdges[new_face_id].resize(SortedFaces.size());
+
+        // Itera su tutti i vertici della faccia nel duale per determinare gli spigoli
+		for (size_t k = 0; k < SortedFaces.size(); k++) {
+			int startVertex = DualMesh.Cell2DsVertices[new_face_id][k];  // Vertice iniziale dell'edge
+			// Se siamo all'ultimo vertice della faccia, il vertice finale deve essere il primo per chiudere la faccia
+			int endVertex = DualMesh.Cell2DsVertices[new_face_id][(k + 1) % SortedFaces.size()];
+
+			// Verifica che l'edge non sia un duplicato e, se necessario, lo aggiunge
+			if (!CheckEdges(DualMesh.Cell1DsVertices, startVertex, endVertex, new_edge_id, existing_edge_id)) {
+				// Se l'edge non esiste, lo aggiungiamo al poliedro duale
+				DualMesh.Cell1DsId.push_back(new_edge_id);  // Assegna un nuovo ID allo spigolo
+				DualMesh.Cell1DsVertices.push_back(Vector2i(startVertex, endVertex));  // Salva gli estremi dello spigolo
+				DualMesh.Cell2DsEdges[new_face_id][k] = new_edge_id;  // Associa lo spigolo alla faccia attuale
+				new_edge_id++;  // Incrementa l'ID per il prossimo spigolo
+			} else {
+				// Se l'edge già esiste, usa l'ID di quello già presente
+				DualMesh.Cell2DsEdges[new_face_id][k] = existing_edge_id;
+			}
+		}
+
+        new_face_id++;
+    }
+
+    // Proiezione sulla sfera per mantenere una rappresentazione geometrica corretta
+    Projection(DualMesh);
+}
+
+// ***************************************************************************
+
+void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, const PolyhedralMesh& Mesh) 
+{
+    // Creiamo una copia delle facce da ordinare per lavorare su di esse
+    vector<int> RemainingFaces = UnsortedFaces; // Facce ancora da ordinare.
+
+    // Selezioniamo la prima faccia arbitrariamente e la inseriamo nel vettore ordinato
+    SortedFaces.push_back(RemainingFaces.front());
+	// Rimozione della faccia perchè già stata ordinata
+    RemainingFaces.erase(RemainingFaces.begin());
+
+    // Iteriamo fino a quando tutte le facce sono state ordinate
+    while (!RemainingFaces.empty()) {
+        int CurrentFace = SortedFaces.back();  // Ultima faccia ordinata
+        vector<int> CurrentEdges = Mesh.Cell2DsEdges[CurrentFace]; // Recuperiamo i suoi spigoli per confrontarli con le altre facce
+
+        int BestMatch = -1; // valore di default
+        int BestMatchIndex = -1;
+
+        // Scorriamo le facce rimaste per trovare quella più adiacente
+        for (size_t i = 0; i < RemainingFaces.size(); i++) {
+            vector<int> CandidateEdges = Mesh.Cell2DsEdges[RemainingFaces[i]]; // Ottenimento degli spigoli
+            int SharedEdges = 0;  // Contatore degli spigoli condivisi
+
+            /* Controlla quanti spigoli hanno in comune
+			Confronta ogni spigolo della faccia attuale (CurrentEdges) con quelli della faccia candidata (CandidateEdges).
+			Se trova un match, incrementa SharedEdges.*/
+            for (int Edge1 : CurrentEdges) {
+                for (int Edge2 : CandidateEdges) {
+                    if (Edge1 == Edge2) {
+                        SharedEdges++;
+                    }
+                }
+            }
+
+			/*Seleziono la miglior faccia
+        	Se questa faccia ha più spigoli in comune, aggiorniamo la migliore scelta*/
+            if (SharedEdges > 0 && (BestMatch == -1 || SharedEdges > Mesh.Cell2DsEdges[BestMatch].size())) {
+                BestMatch = RemainingFaces[i];
+                BestMatchIndex = i;
+            }
+        }
+
+        // Se abbiamo trovato una faccia adiacente, la aggiungiamo alla sequenza
+        if (BestMatch != -1) {
+            SortedFaces.push_back(BestMatch);
+            RemainingFaces.erase(RemainingFaces.begin() + BestMatchIndex);
+        }
+    }
+}
+
+// ***************************************************************************
+
 bool CheckVertices(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)
 {
 	double eps = 1e-8;
@@ -544,7 +710,7 @@ bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge
     {
         int a = edges[i][0];
         int b = edges[i][1];
-        if ((a == v1 && b == v2) || (a == v2 && b == v1)) //NOTA: || è l'operatore OR.
+        if ((a == v1 && b == v2) || (a == v2 && b == v1)) 
 		// //Questo if controlla se la coppia di variabili a e b è uguale alla coppia v1 e v2, in qualunque ordine.
         {
 			existing_edge_id = i;
