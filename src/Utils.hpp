@@ -1,22 +1,15 @@
 #pragma once
 
 #include "PolyhedralMesh.hpp"
-//#include "UCDUtilities.hpp" 
 #include <limits>
 
 using namespace std;
 
 namespace PolyhedralLibrary
 {
-bool ParameterSelection(string& path, PolyhedralMesh& mesh);
+// bool ParameterSelection(string& path, PolyhedralMesh& mesh);
 
-bool PolyhedralChoice(string& path,
-						PolyhedralMesh& mesh,
-						const char& p,
-						const char& q, 
-						const char& b,
-						const char& c,
-						bool& walk);
+bool PolyhedralChoice(string& path);    // PolyhedralMesh& mesh, const char& p, const char& q, const char& b, const char& c, bool& walk);
 
 bool ImportMesh(const string& path, PolyhedralMesh& mesh);
 
@@ -34,10 +27,10 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh);
 
 void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, const PolyhedralMesh& Mesh);
 
-bool CheckVertices(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_id);
+bool CheckVertices(const MatrixXd& mesh, const Vector3d& point, int& dimension, int& duplicate_id);
 //bool CheckVertices(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id);
 
-bool CheckEdges(const MatrixXi& mat, int& dimension, const int& v1, const int& v2, int& existing_edge_id);
+bool CheckEdges(const MatrixXi& verts, const int& v1, const int& v2, int& dimension, int& existing_edge_id);
 // bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id, int& existing_edge_id);
 
 void Projection(PolyhedralMesh& mesh);

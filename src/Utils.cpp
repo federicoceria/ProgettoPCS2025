@@ -17,28 +17,33 @@ using namespace std;
 namespace PolyhedralLibrary{
 
 
-bool PolyhedralChoice( string& path, 
-						PolyhedralMesh& mesh, 
-						const char& p, 
-						const char& q, 
-						const char& b, 
-						const char& c,
-						bool& walk)
+bool PolyhedralChoice(string& path) // c'erano anche PolyhedralMesh& mesh, const char& b, const char& c, bool& walk, const char& p, const char& q
 {
 	string polyhedron;
 	string filePath;
+	string p_prov;
+	string q_prov;
 	
-	if (p=='3')
+	cout << "Enter each parameter when asked." << endl;
+	cout << "Insert p: " << endl;
+	cin >> p_prov;
+	cout << "Insert q: " << endl;
+	cin >> q_prov;
+	
+	int p = stoi(p_prov);
+	int q = stoi(q_prov);
+	
+	if (p == 3)
 	{
 		switch(q)
 		{
-			case '3':
+			case 3:
 				polyhedron = "/Tetraedro";
 				break;
-			case '4':
+			case 4:
 				polyhedron = "/Ottaedro";
 				break;
-			case '5':
+			case 5:
 				polyhedron = "/Icosaedro";
 				break;
 			default:
@@ -82,9 +87,9 @@ bool ImportMesh(const string& path, PolyhedralMesh& mesh)
 
 /************************************************************************************************/
 
-bool ParameterSelection(string& path, PolyhedralMesh& mesh)
+/*bool ParameterSelection(string& path, PolyhedralMesh& mesh)
 {
-	vector<string> v;
+	// vector<string> v;
 	char p;
 	char q;
 	char b;
@@ -128,7 +133,7 @@ bool ParameterSelection(string& path, PolyhedralMesh& mesh)
 	}
 	return true;
 }
-
+*/
 /************************************************************************************************/
 
 bool ImportCell0Ds(const string& path, PolyhedralMesh& mesh)
@@ -303,6 +308,8 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
     Geodetic.Cell2DsId.reserve(total_faces); 
     Geodetic.Cell2DsVertices.resize(total_faces);
     Geodetic.Cell2DsEdges.resize(total_faces);
+	Geodetic.Cell2DsNumEdges.resize(total_faces);
+	Geodetic.Cell2DsNumVertices.resize(total_faces);
 
 
 	//QUA CI ANDREBBE LA FINE DEGLI IF
@@ -368,7 +375,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                 else
                 {
                     coefficients[coeffs] = duplicate_id;  // lo aggiungiamo tra i punti duplicati, l'id corretto è stato preso dentro alla funzione CheckVertices
-                } //A QUESTO PUNTO HO CREATO TUTTI I PUNTI PER LA TRIANGOLARIZZAZIONE
+                } //A QUESTO PUNTO HO CREATO TUTTI I PUNTI PER LA TRIANGOLAZIONE
             }
         }
     }
@@ -387,7 +394,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 void Projection(PolyhedralMesh& mesh)
 {
-	for(int i=0; i < mesh.NumCell0Ds; i++)
+	for(int i = 0; i < mesh.NumCell0Ds; i++)
 	{
 		//double Norm = (mesh.Cell0DsCoordinates[i]).norm();
 		double Norm = (mesh.Cell0DsCoordinates.col(i)).norm();
@@ -535,14 +542,18 @@ ove a = segments -i -j;
 							Geodetic.Cell2DsEdges[faces_id][k] = existing_edge_id; 
                     }
 
-                    Geodetic.NumCell2Ds++;
+                    // Geodetic.NumCell2Ds++;
                     faces_id++;
                 }
             }
         }
     }
+	Geodetic.Cell1DsVertices.conservativeResize(2, Geodetic.NumCell1Ds);
+	Geodetic.Cell2DsNumVertices.resize(Geodetic.NumCell2Ds);
+	Geodetic.Cell2DsNumEdges.resize(Geodetic.NumCell2Ds);
+	Geodetic.Cell2DsVertices.resize(Geodetic.NumCell2Ds);
+	Geodetic.Cell2DsEdges.resize(Geodetic.NumCell2Ds);
 }
-// qua forse mancano i resize/conservative resize
 
 /************************************************************************************************/
 
@@ -629,6 +640,7 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
         vector<int> SortedFaces;
         Sort_Faces(AdjacentFaces, SortedFaces, InputMesh);
 
+		int SortedFacesSize = SortedFaces.size();     // dava warning perchè .size() fornisce un tipo size_t, mentre k è int. così è a posto.
         // Creiamo una nuova faccia nel duale, che sarà composta dai baricentri delle facce trovate sopra
         vector<int> NewDualVertices; // conterrà i vertici della nuova faccia nel duale
 		//Itera attraverso gli id di tutte le facce ordinate
@@ -640,10 +652,10 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 		// Salva i vertici della nuova faccia nel poliedro duale
         DualMesh.Cell2DsVertices[new_face_id] = NewDualVertices;
 		// Alloco spazio per gli spigoli
-        DualMesh.Cell2DsEdges[new_face_id].resize(SortedFaces.size());
+        DualMesh.Cell2DsEdges[new_face_id].resize(SortedFacesSize);
 
         // Itera su tutti i vertici della faccia nel duale per determinare gli spigoli
-		for (int k = 0; k < SortedFaces.size(); k++) {
+		for (int k = 0; k < SortedFacesSize; k++) {
 			int d_start = DualMesh.Cell2DsVertices[new_face_id][k];  // Vertice iniziale dell'edge
 			// Se siamo all'ultimo vertice della faccia, il vertice finale deve essere il primo per chiudere la faccia
 			int d_end = DualMesh.Cell2DsVertices[new_face_id][k+1];//[(k + 1) % SortedFaces.size()];
@@ -733,7 +745,7 @@ void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, cons
 
 /************************************************************************************************/
 
-//bool CheckVertices(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)  // òrima il penultimo parametro era int current_id)
+//bool CheckVertices(const vector<Vector3d>& coords, const Vector3d& point, int current_id, int& duplicate_id)  // prima il penultimo parametro era int current_id)
 bool CheckVertices(const MatrixXd& mesh, const Vector3d& point, int& dimension, int& duplicate_id)
 {
 	double eps = 1e-8;
@@ -751,12 +763,12 @@ bool CheckVertices(const MatrixXd& mesh, const Vector3d& point, int& dimension, 
 /************************************************************************************************/
 
 // bool CheckEdges(const vector<Vector2i>& edges, int v1, int v2, int& current_edge_id, int& existing_edge_id) //v1 e v2 sono i vertici dello spigolo con il current_edge_id
-bool CheckEdges(const MatrixXi& mat, int& dimension, const int& v1, const int& v2, int& existing_edge_id)
+bool CheckEdges(const MatrixXi& verts, const int& v1, const int& v2, int& dimension, int& existing_edge_id)
 {
     for (int i = 0; i < dimension; i++)  // i < current_edge_id
     {
-        int a = mat(0,i);//int a = edges[i][0];
-        int b = mat(1,i);// int b = edges[i][1];
+        int a = verts(0,i);//int a = edges[i][0];
+        int b = verts(1,i);// int b = edges[i][1];
         if ((a == v1 && b == v2) || (a == v2 && b == v1)) 
 		// //Questo if controlla se la coppia di variabili a e b è uguale alla coppia v1 e v2, in qualunque ordine.
         {

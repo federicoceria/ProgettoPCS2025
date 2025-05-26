@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include "PolyhedralMesh.hpp"
+#include "UCDUtilities.hpp" 
 
 using namespace std;
 using namespace PolyhedralLibrary;
@@ -17,9 +18,9 @@ int main()
 
     /*prende in input path e mesh, chiede con un cin i parametri di schlafli, e in base a quelli, grazie 
     alla funzione PolyhedralChoice, modifica il path*/
-    if(!ParameterSelection(path, Platonic))
+    if(!PolyhedralChoice(path))  // if(!ParameterSelection(path, Platonic)); ho tolto Platonic perché di fatto polyhedralchoice non la usa mai
 	{
-		cerr << "An error occurred while selecting the parameters" << endl;
+		cerr << "An error occurred while selecting the parameters: in order to generate a geodetic solid, p has to be equal to 3 and q has to be chosen between the values 3,4,5." << endl;
 		return 1;
 	}
 
@@ -39,19 +40,20 @@ int main()
 	
 	int c = stoi(b_prov);
 	int b = stoi(c_prov);
-	/*
+	
     if(b > 0 && c == 0)
     {
         GeodeticPolyhedron(Platonic, Geodetic, b);
-		DualMesh(Geodetic, Goldberg);
+		//DualMesh(Geodetic, Goldberg);
         cout << "Geodetic solid successfully generated with num_segments = " << b << endl;
     }
     else if(b == 0 && c > 0)
     {
         GeodeticPolyhedron(Platonic, Geodetic, c);
-		DualMesh(Geodetic, Goldberg);
+		//DualMesh(Geodetic, Goldberg);
         cout << "Geodetic solid successfully generated with num_segments = " << c << endl;
     }
+	
     //else
         //seconda classe
 	
