@@ -38,25 +38,41 @@ int main()
 	cout << "Insert c: " << endl;
 	cin >> c_prov;
 	
-	int c = stoi(b_prov);
-	int b = stoi(c_prov);
+    int c = stoi(b_prov);
+    int b = stoi(c_prov);
 	
     if(b > 0 && c == 0)
     {
         GeodeticPolyhedron(Platonic, Geodetic, b);
-		//DualMesh(Geodetic, Goldberg);
+		DualMesh(Geodetic, Goldberg);
         cout << "Geodetic solid successfully generated with num_segments = " << b << endl;
     }
     else if(b == 0 && c > 0)
     {
         GeodeticPolyhedron(Platonic, Geodetic, c);
-		//DualMesh(Geodetic, Goldberg);
+		DualMesh(Geodetic, Goldberg);
         cout << "Geodetic solid successfully generated with num_segments = " << c << endl;
     }
-	
-    //else
-        //seconda classe
-	
+	else
+    {
+        cerr << "Error: Invalid parameters for geodetic solid generation." << endl;
+        return 1;
+    }
+    
+    // Esportazione file TXT
+    if (!ExportPolyhedralData(Goldberg)) {
+        cerr << "Error: Failed to export polyhedral data." << endl;
+        return 1;
+    }
+
+    // Esportazione per Paraview (solo vertici e spigoli)
+    Gedim::UCDUtilities utilities;
+    utilities.ExportPoints("./Cell0Ds.inp", Goldberg.Cell0DsCoordinates);
+    utilities.ExportSegments("./Cell1Ds.inp", Goldberg.Cell0DsCoordinates, Goldberg.Cell1DsVertices);
+
+    cout << "Export completed successfully!" << endl;
+    return 0;
+}
 	/*Gedim::UCDUtilities utilities;	
     utilities.ExportPoints("./Cell0Ds.inp",
                            Geodetic.Cell0DsCoordinates);
@@ -116,9 +132,9 @@ int main()
     cout << "Number of edges: " << Geodetic.NumCell1Ds << endl;
     cout << "Number of faces: "   << Geodetic.NumCell2Ds << endl;*/
 
-    cout << "andate tutti al concerto dei POLIFONICI" << endl;
+ /*   cout << "andate tutti al concerto dei POLIFONICI" << endl;
     return 0;
-}
+}*/
 
 
 

@@ -29,6 +29,16 @@ struct PolyhedralMesh
 	vector<int> Cell2DsNumEdges = {};
 	vector<vector<int>> Cell2DsVertices = {};  // vertici e spigoli delle celle bidimensionali
 	vector<vector<int>> Cell2DsEdges = {}; 
+
+	// Cell3D
+	int NumCell3Ds = 0;
+	vector<int> Cell3DsId = {};					
+	vector<int> Cell3DsNumVertices = {};		
+	vector<int> Cell3DsNumEdges = {};	
+	vector<int> Cell3DsNumFaces = {};
+	vector<vector<int>> Cell3DsVertices = {};	
+	vector<vector<int>> Cell3DsEdges = {};
+	vector<vector<int>> Cell3DsFaces = {};
 };
 
 }

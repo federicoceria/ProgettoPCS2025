@@ -270,6 +270,93 @@ bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh)
 
 /************************************************************************************************/
 
+bool ExportPolyhedralData(const PolyhedralMesh& mesh)
+{
+    {
+        ofstream vertexFile("Cell0Ds.txt");
+        if (!vertexFile.is_open())
+            return false;
+
+        vertexFile << "Id;X;Y;Z" << endl;
+
+        for (int i = 0; i < mesh.NumCell0Ds; i++) {
+            vertexFile << mesh.Cell0DsId[i] << ";"
+                       << mesh.Cell0DsCoordinates(0, i) << ";"
+                       << mesh.Cell0DsCoordinates(1, i) << ";"
+                       << mesh.Cell0DsCoordinates(2, i) << endl;
+        }
+    }
+
+    {
+        ofstream edgeFile("Cell1Ds.txt");
+        if (!edgeFile.is_open())
+            return false;
+
+        edgeFile << "Id;Origin;End" << endl;
+
+        for (int i = 0; i < mesh.NumCell1Ds; i++) {
+            edgeFile << mesh.Cell1DsId[i] << ";"
+                     << mesh.Cell1DsVertices(0, i) << ";"
+                     << mesh.Cell1DsVertices(1, i) << endl;
+        }
+    }
+
+    {
+        ofstream faceFile("Cell2Ds.txt");
+        if (!faceFile.is_open())
+            return false;
+
+        faceFile << "Id;NumVertices;VerticesId;NumEdges;EdgesId" << endl;
+
+        for (int i = 0; i < mesh.NumCell2Ds; i++) {
+            faceFile << mesh.Cell2DsId[i] << ";"
+                     << mesh.Cell2DsNumVertices[i];
+
+            for (int j = 0; j < mesh.Cell2DsNumVertices[i]; j++)
+                faceFile << ";" << mesh.Cell2DsVertices[i][j];
+
+            faceFile << ";" << mesh.Cell2DsNumEdges[i];
+
+            for (int j = 0; j < mesh.Cell2DsNumEdges[i]; j++)
+                faceFile << ";" << mesh.Cell2DsEdges[i][j];
+
+            faceFile << endl;
+        }
+    }
+
+    {
+        ofstream polyhedronFile("Cell3Ds.txt");
+        if (!polyhedronFile.is_open())
+            return false;
+
+        polyhedronFile << "Id;NumVertices;VerticesId;NumEdges;EdgesId;NumFaces;FacesId" << endl;
+
+        for (int i = 0; i < mesh.NumCell3Ds; i++) {
+            polyhedronFile << mesh.Cell3DsId[i] << ";"
+                           << mesh.Cell3DsNumVertices[i];
+
+            for (int j = 0; j < mesh.Cell3DsNumVertices[i]; j++)
+                polyhedronFile << ";" << mesh.Cell3DsVertices[i][j];
+
+            polyhedronFile << ";" << mesh.Cell3DsNumEdges[i];
+
+            for (int j = 0; j < mesh.Cell3DsNumEdges[i]; j++)
+                polyhedronFile << ";" << mesh.Cell3DsEdges[i][j];
+
+            polyhedronFile << ";" << mesh.Cell3DsNumFaces[i];
+
+            for (int j = 0; j < mesh.Cell3DsNumFaces[i]; j++)
+                polyhedronFile << ";" << mesh.Cell3DsFaces[i][j];
+
+            polyhedronFile << endl;
+        }
+    }
+
+    return true;
+}
+
+
+
 bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments)
 {
     int points_id = 0;   // inizializziamo a zero tutti gli id del poliedro
@@ -733,15 +820,16 @@ void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, cons
             }*/
         }
 
-        // Se abbiamo trovato una faccia adiacente, la aggiungiamo alla sequenza
-        if (BestMatch != -1) 
-		{
-			CurrentFace = RemainingFaces[BestMatchIndex];
-            SortedFaces.push_back(BestMatch);
-            RemainingFaces.erase(RemainingFaces.begin() + BestMatchIndex);
-        }
+        if (BestMatchIndex == -1) { 
+        cerr << "Errore: impossibile ordinare le facce, nessuna corrispondenza trovata!" << endl;
+        break;  // Esce dal loop per evitare il blocco
+	    }
+		CurrentFace = RemainingFaces[BestMatchIndex];
+        SortedFaces.push_back(BestMatch);
+        RemainingFaces.erase(RemainingFaces.begin() + BestMatchIndex);
     }
 }
+
 
 /************************************************************************************************/
 
