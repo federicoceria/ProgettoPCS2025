@@ -2,7 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <queue>
 #include "PolyhedralMesh.hpp"
+#include "UCDUtilities.hpp"
 
 using namespace std;
 
@@ -872,6 +874,149 @@ bool CheckEdges(const MatrixXi& verts, const int& v1, const int& v2, int& dimens
 
 /************************************************************************************************/
 
+bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& NumPath, vector<int> path)
+{
+		
+	if (start >= mesh.NumCell0Ds || end >= mesh.NumCell0Ds || start < 0 || end < 0)
+		return false;
+	
+	// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
+	// conviene usare un vector di vector anziché un vector di liste
+	vector<vector<int>> adjacency_list;
+	adjacency_list.reserve(mesh.NumCell0Ds);
+	MatrixXd W = MatrixXd::Zero(mesh.NumCell0Ds, mesh.NumCell0Ds);
+	
+	// iterando su tutti gli id dei punti, 
+	// per ciascun punto itero in tutti gli id dei segmenti (origin,end) e guardo quali hanno per estremo quel punto.
+	// L'estremo che è diverso dal punto in questione lo appendo alla "lista" di adiacenza.
+	
+	for(int i = 0; i < mesh.NumCell0Ds; i++)
+	{
+		vector<int> adj;
+		for(const auto& edge : mesh.Cell1DsId)
+		{
+			int Origin = mesh.Cell1DsVertices(0,edge);
+			int End = mesh.Cell1DsVertices(1,edge);
+			
+			if (Origin == i)
+				adj.push_back(End);
+			else if(End == i)
+				adj.push_back(Origin);
+		}
+		adjacency_list.push_back(adj);
+	}
+	
+	for(size_t i = 0; i < adjacency_list.size(); i++)
+	{
+		for(const auto& adj: adjacency_list[i])
+		{
+			W(i,adj) = (mesh.Cell0DsCoordinates.col(adj)-mesh.Cell0DsCoordinates.col(i)).norm();
+		}
+	}
+	
+	// algoritmo di Dijkstra per esplorare il grafo, pred è un vettore
+	// ausiliario usato per ricostruire il percorso
+
+	vector<int> pred(mesh.NumCell0Ds, -1);
+	vector<double> dist(mesh.NumCell0Ds, 1000.0);
+	priority_queue<pair<int, double>, vector<pair<int, double>>, greater<pair<int, double>>> PQ;
+	
+	pred[start] = start;
+	dist[start] = 0;
+	
+	for(int i = 0; i < mesh.NumCell0Ds; i++)
+		PQ.push({i, dist[i]});
+	while(!PQ.empty())
+	{
+		int u = PQ.top().first;
+		int p = PQ.top().second;
+		PQ.pop();
+		if (dist[u] < p)
+			continue;
+		for(const auto& w : adjacency_list[u]){
+			if( dist[w] > dist[u] + W(u,w) ) {
+				dist[w] = dist[u] + W(u,w);
+				pred[w] = u;
+				PQ.push({w, dist[w]});
+			}
+		}
+	}
+	
+	// path contiene gli id dei vertici che compongono il cammino minimo 
+	// al contrario, perché sono id provenienti dal vettore pred
+	
+	int v = end;
+	while(v != start) {
+		path.push_back(v);
+		v = pred[v];
+	} 
+	path.push_back(start);
+	
+	ExpPath(mesh, path, length, NumPath, W);
+}
+
+/*******************************************************************************************/
+
+bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W)
+{
+	vector<double> PathPointsProperties(mesh.NumCell0Ds, 0.0);
+		for (const auto& point : path)
+			PathPointsProperties[point] = 1.0;
+
+			
+		Gedim::UCDProperty<double> ShortPathProperty;
+		ShortPathProperty.Label = "shortest path";
+		ShortPathProperty.UnitLabel = "";
+		ShortPathProperty.Size = PathPointsProperties.size();
+		ShortPathProperty.NumComponents = 1;
+		ShortPathProperty.Data = PathPointsProperties.data();  
+
+
+		vector<Gedim::UCDProperty<double>> PointsProperties;
+		PointsProperties.push_back(ShortPathProperty);
+	
+		Gedim::UCDUtilities utilities;
+		utilities.ExportPoints("./Cell0Ds.inp",
+								mesh.Cell0DsCoordinates,
+								PointsProperties);
+	
+		vector<int> pathEdges; 
+		vector<double> PathEdgesProperties(mesh.NumCell1Ds, 0.0);
+
+		for (size_t i = 0; i < path.size()-1; i++){
+			int v1 = path[i];
+			int v2 = path[i+1];
+			for(const auto& edge: mesh.Cell1DsId){
+				if ((mesh.Cell1DsVertices(0, edge) == v1 && mesh.Cell1DsVertices(1,edge) == v2) || 
+					(mesh.Cell1DsVertices(0, edge) == v2 && mesh.Cell1DsVertices(1,edge) == v1)){
+						pathEdges.push_back(edge);
+						PathEdgesProperties[edge] = 1.0;
+					}
+			}	
+		}
+		
+		for(size_t i = 0; i < path.size()-1; i++)
+			length += W(path[i],path[i+1]);
+		NumPath = pathEdges.size();
+		
+		
+		ShortPathProperty.Label = "shortest path";
+		ShortPathProperty.UnitLabel = "";
+		ShortPathProperty.Size = PathEdgesProperties.size();
+		ShortPathProperty.NumComponents = 1;
+		ShortPathProperty.Data = PathEdgesProperties.data();  
+	
+		vector<Gedim::UCDProperty<double>> EdgesProperties;
+		EdgesProperties.push_back(ShortPathProperty);
+		utilities.ExportSegments("./Cell1Ds.inp",
+								mesh.Cell0DsCoordinates,
+								mesh.Cell1DsVertices,
+								{},
+								EdgesProperties);
+		return true;
+	}
+		
+	
 /*bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& Goldberg) 
 {
 	return true;

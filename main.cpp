@@ -15,6 +15,8 @@ int main()
     string path = "/home/appuser/Data/ProgettoPCS2025/Platonic_solids";
 	string b_prov;
 	string c_prov;
+	string id1_prov;
+	string id2_prov;
 
     /*prende in input path e mesh, chiede con un cin i parametri di schlafli, e in base a quelli, grazie 
     alla funzione PolyhedralChoice, modifica il path*/
@@ -65,7 +67,32 @@ int main()
         return 1;
     }
 
-    // Esportazione per Paraview (solo vertici e spigoli)
+	cout << "Shortest Path: please, insert the starting id. If you do not want to evaluate it, please enter without inserting anything." << endl;
+	cin >> id1_prov;
+	cout << "Now, please insert the ending id. As the previous one, if you do not want to evaluate it, please enter without inserting anything." << endl;
+	cin >> id2_prov;
+	
+	
+	int starting_id;
+	int ending_id;
+	
+	if(id1_prov == "" && id2_prov == "")
+	{
+		cout << "The shortest path will not be evaluated." << endl;
+	}
+	else if (id1_prov != "" && id2_prov == "")
+	{
+		starting_id = stoi(id1_prov);
+		ending_id = stoi(id2_prov);
+	}
+	
+	double length = 0.0;
+	int PathEdges = 0;
+	vector<int> visited;
+	ShortestPath(Geodetic, starting_id, ending_id, length, PathEdges, visited);
+    
+	
+	// Esportazione per Paraview (solo vertici e spigoli)
     Gedim::UCDUtilities utilities;
     utilities.ExportPoints("./Cell0Ds.inp", Goldberg.Cell0DsCoordinates);
     utilities.ExportSegments("./Cell1Ds.inp", Goldberg.Cell0DsCoordinates, Goldberg.Cell1DsVertices);

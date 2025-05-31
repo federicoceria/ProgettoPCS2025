@@ -37,6 +37,10 @@ void Projection(PolyhedralMesh& mesh);
 
 bool ExportPolyhedralData(const PolyhedralMesh& mesh);
 
+bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& PathEdges, vector<int> path);
+
+bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W);
+
 /*
 bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& Goldberg);
 
