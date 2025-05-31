@@ -35,7 +35,7 @@ bool CheckEdges(const MatrixXi& verts, const int& v1, const int& v2, int& dimens
 
 void Projection(PolyhedralMesh& mesh);
 
-bool ExportPolyhedralData(const PolyhedralMesh& polyhedron);
+bool ExportPolyhedralData(const PolyhedralMesh& mesh);
 
 /*
 bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& Goldberg);

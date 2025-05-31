@@ -784,17 +784,18 @@ void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, cons
 
     // Iteriamo fino a quando tutte le facce sono state ordinate
     while (!RemainingFaces.empty()) {
-        int CurrentFace = SortedFaces.back();  // Ultima faccia ordinata
+        // int CurrentFace = SortedFaces.back();  // Ultima faccia ordinata
         vector<int> CurrentEdges = Mesh.Cell2DsEdges[CurrentFace]; // Recuperiamo i suoi spigoli per confrontarli con le altre facce
 
-        // bool Match = False; 
-		int BestMatch = -1; // valore di default
-        int BestMatchIndex = -1;
+        bool Match = false; 
+		// int BestMatch = -1; // valore di default
+        int BestMatchIndex;
 
+		int RemainingFacesSize = RemainingFaces.size();
         // Scorriamo le facce rimaste per trovare quella più adiacente
-        for (size_t i = 0; i < RemainingFaces.size(); i++) {
+        for (int i = 0; i < RemainingFacesSize; i++) {
             vector<int> CandidateEdges = Mesh.Cell2DsEdges[RemainingFaces[i]]; // Ottenimento degli spigoli
-            int SharedEdges = 0;  // Contatore degli spigoli condivisi
+            //int SharedEdges = 0;  // Contatore degli spigoli condivisi
 
             /* Controlla quanti spigoli hanno in comune
 			Confronta ogni spigolo della faccia attuale (CurrentEdges) con quelli della faccia candidata (CandidateEdges).
@@ -802,14 +803,17 @@ void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, cons
             for (int Edge1 : CurrentEdges) {
                 for (int Edge2 : CandidateEdges) {
                     if (Edge1 == Edge2) {
-                        // Match = True;
+                        Match = true;
 						BestMatchIndex = i;
-						SharedEdges++;
+						//SharedEdges++;
 						break;
                     }
                 }
+				if(Match)
+					break;
             }
-
+			if(Match)
+				break;
 			/*Seleziono la miglior faccia
         	Se questa faccia ha più spigoli in comune, aggiorniamo la migliore scelta*/
             //if (SharedEdges > 0 && (BestMatch == -1 || SharedEdges > Mesh.Cell2DsEdges[BestMatch].size())) {
@@ -820,13 +824,12 @@ void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, cons
             }*/
         }
 
-        if (BestMatchIndex == -1) { 
-        cerr << "Errore: impossibile ordinare le facce, nessuna corrispondenza trovata!" << endl;
-        break;  // Esce dal loop per evitare il blocco
-	    }
+        if(Match) 
+		{
 		CurrentFace = RemainingFaces[BestMatchIndex];
-        SortedFaces.push_back(BestMatch);
+        SortedFaces.push_back(CurrentFace);
         RemainingFaces.erase(RemainingFaces.begin() + BestMatchIndex);
+		}
     }
 }
 
