@@ -9,7 +9,7 @@ namespace PolyhedralLibrary
 {
 // bool ParameterSelection(string& path, PolyhedralMesh& mesh);
 
-bool PolyhedralChoice(string& path);    // PolyhedralMesh& mesh, const char& p, const char& q, const char& b, const char& c, bool& walk);
+//bool PolyhedralChoice(string& path);    // PolyhedralMesh& mesh, const char& p, const char& q, const char& b, const char& c, bool& walk);
 
 bool ImportMesh(const string& path, PolyhedralMesh& mesh);
 
@@ -39,7 +39,7 @@ bool ExportPolyhedralData(const PolyhedralMesh& mesh);
 
 bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& PathEdges, vector<int> path);
 
-bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W);
+//bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W);
 
 /*
 bool GenerateGoldbergClassI(int p, int q, int b, int c, PolyhedralMesh& Goldberg);

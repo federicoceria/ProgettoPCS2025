@@ -4,7 +4,7 @@
 #include <cmath>
 #include <queue>
 #include "PolyhedralMesh.hpp"
-#include "UCDUtilities.hpp"
+//#include "UCDUtilities.hpp"
 
 using namespace std;
 
@@ -19,7 +19,7 @@ using namespace std;
 namespace PolyhedralLibrary{
 
 
-bool PolyhedralChoice(string& path) // c'erano anche PolyhedralMesh& mesh, const char& b, const char& c, bool& walk, const char& p, const char& q
+/*bool PolyhedralChoice(string& path) // c'erano anche PolyhedralMesh& mesh, const char& b, const char& c, bool& walk, const char& p, const char& q
 {
 	string polyhedron;
 	string filePath;
@@ -769,6 +769,22 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 
     // Proiezione sulla sfera per mantenere una rappresentazione geometrica corretta
     Projection(DualMesh);
+
+	DualMesh.Cell1DsVertices.conservativeResize(2, DualMesh.NumCell1Ds);
+	DualMesh.Cell2DsNumVertices.resize(DualMesh.NumCell2Ds);
+	DualMesh.Cell2DsNumEdges.resize(DualMesh.NumCell2Ds);
+	DualMesh.Cell2DsVertices.resize(DualMesh.NumCell2Ds);
+	DualMesh.Cell2DsEdges.resize(DualMesh.NumCell2Ds);
+			
+	// GENERAZIONE POLIEDRO
+	DualMesh.NumCell3Ds++;
+	DualMesh.Cell3DsId.push_back(0);
+	DualMesh.Cell3DsNumVertices.push_back(DualMesh.NumCell0Ds);
+	DualMesh.Cell3DsNumEdges.push_back(DualMesh.NumCell1Ds);
+	DualMesh.Cell3DsNumFaces.push_back(DualMesh.NumCell2Ds);
+	DualMesh.Cell3DsVertices.push_back(DualMesh.Cell0DsId);
+	DualMesh.Cell3DsEdges.push_back(DualMesh.Cell1DsId);
+	DualMesh.Cell3DsFaces.push_back(DualMesh.Cell2DsId);
 } 
 
 /************************************************************************************************/
@@ -951,13 +967,13 @@ bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double
 		v = pred[v];
 	} 
 	path.push_back(start);
-	
-	ExpPath(mesh, path, length, NumPath, W);
+	return true;
+	//ExpPath(mesh, path, length, NumPath, W);
 }
 
 /*******************************************************************************************/
 
-bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W)
+/*bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W)
 {
 	vector<double> PathPointsProperties(mesh.NumCell0Ds, 0.0);
 		for (const auto& point : path)
