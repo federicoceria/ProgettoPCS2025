@@ -361,6 +361,7 @@ bool ExportPolyhedralData(const PolyhedralMesh& mesh)
 
 bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments)
 {
+	int num_duplicayed_vert;
     int points_id = 0;   // inizializziamo a zero tutti gli id del poliedro
     int edges_id = 0;
     int faces_id = 0;
@@ -463,6 +464,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                 }
                 else
                 {
+					num_duplicayed_vert ++;
                     coefficients[coeffs] = duplicate_id;  // lo aggiungiamo tra i punti duplicati, l'id corretto è stato preso dentro alla funzione CheckVertices
                 } //A QUESTO PUNTO HO CREATO TUTTI I PUNTI PER LA TRIANGOLAZIONE
             }
@@ -475,6 +477,8 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 	Projection(Geodetic);
 	// Triangolazione
 	GenerateTriangles(Platonic, Geodetic, coefficients, segments, edges_id, faces_id);
+	cout << "numero di vertici del geodetico: "<< Geodetic.Cell0DsId.size()  << endl;
+	cout << "numero di vertici duplicati: "<<num_duplicayed_vert << endl;
 
 	return true;
 }
@@ -498,6 +502,7 @@ void Projection(PolyhedralMesh& mesh)
 
 void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id)
 {
+	int duplicated_vert;
 	for (const auto& id : Platonic.Cell2DsId)
     {
         for (int i = 0; i < segments; i++)
@@ -558,9 +563,10 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
                         Geodetic.NumCell1Ds++;
                         edges_id++;
                     }
-					else
+					else{
 						Geodetic.Cell2DsEdges[faces_id][k] = Geodetic.Cell1DsId[existing_edge_id]; // dovrebbe essere uguale mettere ( = existing_edge_id; )
-                }
+						duplicated_vert++;}
+					}
 				
                 faces_id++;
 
@@ -604,7 +610,7 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 					Vertices[2] = v4;
 					Geodetic.Cell2DsVertices[faces_id] = Vertices;
                     Geodetic.Cell2DsEdges[faces_id].resize(3);
-
+					
                     for (int k = 0; k < 3; k++)   // stessa struttura di prima
                     {
                         int v_start = Geodetic.Cell2DsVertices[faces_id][k];
@@ -627,10 +633,13 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
                             Geodetic.NumCell1Ds++;
                             edges_id++;
                         }
-						else
-							Geodetic.Cell2DsEdges[faces_id][k] = existing_edge_id; 
-                    }
+						else{
+							Geodetic.Cell2DsEdges[faces_id][k] = existing_edge_id;
+							duplicated_vert++;
+						}
 
+                    }
+					
                     // Geodetic.NumCell2Ds++;
                     faces_id++;
                 }
@@ -642,6 +651,8 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 	Geodetic.Cell2DsNumEdges.resize(Geodetic.NumCell2Ds);
 	Geodetic.Cell2DsVertices.resize(Geodetic.NumCell2Ds);
 	Geodetic.Cell2DsEdges.resize(Geodetic.NumCell2Ds);
+	cout << "il numero di edges è: " << Geodetic.Cell1DsId.size() << endl;
+	cout << "il numero di edges duplicati è: " << duplicated_vert << endl;
 }
 
 /************************************************************************************************/
