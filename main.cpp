@@ -93,7 +93,7 @@ int main()
     }
     
     // GENERAZIONE DEL POLIEDRO DUALE SE q = 3
-    /*if (q == 3) 
+    if (q == 3) 
     {
         DualMesh(Geodetic, Goldberg);
         // lo han fatto per evitare di fare degli if dopo
@@ -103,7 +103,7 @@ int main()
     else
     {
         cout << "Generated a geodetic polyhedron {3, " << q << "+} for segments (" << b << ", " << c << ")." << endl;
-    }*/
+    }
 
 	cout << "Shortest Path: please, insert the starting id. If you do not want to evaluate it, please enter without inserting anything." << endl;
 	cin >> id1_prov;
@@ -133,7 +133,7 @@ int main()
         vector<double> PathPointsProperties(Geodetic.NumCell0Ds, 0.0);
 		for (const auto& point : path)
 			PathPointsProperties[point] = 1.0;
-
+			
 		Gedim::UCDProperty<double> ShortPathProperty;
 		ShortPathProperty.Label = "shortest path";
 		ShortPathProperty.UnitLabel = "";
@@ -223,7 +223,7 @@ int main()
 								Goldberg.Cell0DsCoordinates,
 								Goldberg.Cell1DsVertices); 
     
-*/
+	*/
 
 
     
@@ -267,9 +267,9 @@ int main()
     cout << "Number of edges: " << Geodetic.NumCell1Ds << endl;
     cout << "Number of faces: "   << Geodetic.NumCell2Ds << endl;*/
 
- /*   cout << "andate tutti al concerto dei POLIFONICI" << endl;
+ /*   cout << "andate tutti al concerto dei POLIFONICI" << endl;*/
     return 0;
-}*/
+}
 
 
 

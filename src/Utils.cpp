@@ -433,7 +433,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                 int a = segments -i -j;
 				int b = i;
 				int c = j;
-*/
+    */
 
 				/* Calcolo del punto tramite combinazione lineare (a e b diventano double per evitare problemi con la divisione); dividiamo per segments in modo da avere
 				la normalizzazione (infatti a, b e c sommano a segments, mentre dovrebbero sommare a 1) */
@@ -512,10 +512,10 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 				// triangolazioni da fare.
 	
                 // Triangolo “a punta in su”
-                int v1 = coefficients[{segments - i - j, i, j, id}];       // richiamiamo tre punti adiacenti per fare la triangolazione: nella prima iterazione, 
+                int v1 = coefficients[{i, segments - i - j, j, id}];       // richiamiamo tre punti adiacenti per fare la triangolazione: nella prima iterazione, 
 				// v1 è coefficients[{segments, 0, 0, id}], v2 è coefficients[{segments -1, 0, 1, id}], v3 è coefficients[{segments -1, 1, 0, id}]
-                int v2 = coefficients[{segments - i - (j + 1), i, j + 1, id}];
-                int v3 = coefficients[{segments - (i + 1) - j, i + 1, j, id}];
+                int v2 = coefficients[{i,segments - i - (j + 1), j + 1, id}];
+                int v3 = coefficients[{i+1,segments - (i + 1) - j, j, id}];
 
 				//int v2 = coefficients[{segments - i - j - 1, i, j + 1, id}]; metodo equivalente (Non hai cambiato quasi niente (ale))
                 //int v3 = coefficients[{segments - i - 1 - j, i + 1, j, id}];
@@ -559,7 +559,7 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
                         edges_id++;
                     }
 					else
-						Geodetic.Cell2DsEdges[faces_id][k] = existing_edge_id; 
+						Geodetic.Cell2DsEdges[faces_id][k] = Geodetic.Cell1DsId[existing_edge_id]; // dovrebbe essere uguale mettere ( = existing_edge_id; )
                 }
 				
                 faces_id++;
@@ -583,14 +583,14 @@ void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic,
 				//secondo me questa condizione continua ad essere sbagliata, perchè no esclude che dei vertici adiacenti sul lato possano essere presi
                 if (i > 0)     // per i=0 non funziona: i triangoli a punta in giù non toccano i vertici della faccia che stanno triangolando, ma solo punti interni dei lati
                 {
-                    int v4 = coefficients[{segments - (i - 1) - j, i - 1, j, id}];
-/* NOTA X ALE (anche3 abbastanza inutile, fatta la sera a mente poco lucida)(per come è fatto il mio disegno io avrei
-if (j (=c (?)) >0)
-allora v4 = coefficients[{a,b+1,c-1,Id}] 
-ove a = segments -i -j;
-	b = i 
-	c=j, ove la c indica il livello (altezza) sulla faccia triangolarizzata, ma ficnhè non la immmagino come ha fatto lui per capire le differenze
-	non la cambio, anche se dovrebbe funzionare ugualmente dovessi riscrivere il tutto coerentemente)*/
+                    int v4 = coefficients[{i-1,segments-(i-1)-(j+1),(j+1),id}];
+		/* NOTA X ALE (anche3 abbastanza inutile, fatta la sera a mente poco lucida)(per come è fatto il mio disegno io avrei
+		if (j (=c (?)) >0)
+		allora v4 = coefficients[{a,b+1,c-1,Id}] 
+		ove a = segments -i -j;
+		b = i 
+		c=j, ove la c indica il livello (altezza) sulla faccia triangolarizzata, ma ficnhè non la immmagino come ha fatto lui per capire le differenze
+		non la cambio, anche se dovrebbe funzionare ugualmente dovessi riscrivere il tutto coerentemente)*/
 
 
 					/*i - 1: stai “salendo” di una riga nella griglia triangolare
