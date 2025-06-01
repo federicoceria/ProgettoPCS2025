@@ -662,13 +662,13 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 
     // Gli spigoli nel duale rimangono in numero uguale a quelli del poliedro originale
     DualMesh.NumCell1Ds = InputMesh.NumCell1Ds;
-	DualMesh.Cell1DsId.resize(DualMesh.NumCell1Ds);
+	DualMesh.Cell1DsId.reserve(DualMesh.NumCell1Ds);
 	// DualMesh.Cell1DsVertices.resize(DualMesh.NumCell1Ds);
 
     // Il duale ha tante facce quante sono i vertici del poliedro originale
     DualMesh.NumCell2Ds = InputMesh.NumCell0Ds;
 	DualMesh.Cell1DsVertices = MatrixXi::Zero(2, DualMesh.NumCell1Ds);
-    DualMesh.Cell2DsId.resize(DualMesh.NumCell2Ds);
+    DualMesh.Cell2DsId.reserve(DualMesh.NumCell2Ds);
     DualMesh.Cell2DsVertices.resize(DualMesh.NumCell2Ds);
     DualMesh.Cell2DsEdges.resize(DualMesh.NumCell2Ds);
 
@@ -736,18 +736,25 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
         for (const auto& sorted_face : SortedFaces)
             NewDualVertices.push_back(FaceCenters[sorted_face]); // usa gli id dei baricentri
 
-		// Assegna un ID alla nuova faccia nel poliedro duale
-        DualMesh.Cell2DsId.push_back(new_face_id); //DualMesh.Cell2DsId[new_face_id] = new_face_id;
+		DualMesh.Cell2DsId.push_back(new_face_id);
 		// Salva i vertici della nuova faccia nel poliedro duale
         DualMesh.Cell2DsVertices[new_face_id] = NewDualVertices;
 		// Alloco spazio per gli spigoli
         DualMesh.Cell2DsEdges[new_face_id].resize(SortedFacesSize);
 
+		DualMesh.Cell2DsNumVertices[new_face_id] = SortedFacesSize;
+		DualMesh.Cell2DsNumEdges[new_face_id] = SortedFacesSize;
+
         // Itera su tutti i vertici della faccia nel duale per determinare gli spigoli
 		for (int k = 0; k < SortedFacesSize; k++) {
 			int d_start = DualMesh.Cell2DsVertices[new_face_id][k];  // Vertice iniziale dell'edge
+			int d_end;
+			if (k == SortedFacesSize-1){
+				d_end = DualMesh.Cell2DsVertices[new_face_id][0];
+			} else {
 			// Se siamo all'ultimo vertice della faccia, il vertice finale deve essere il primo per chiudere la faccia
-			int d_end = DualMesh.Cell2DsVertices[new_face_id][k+1];//[(k + 1) % SortedFaces.size()];
+			int d_end = DualMesh.Cell2DsVertices[new_face_id][k + 1];
+			}
 
 			// Verifica che l'edge non sia un duplicato e, se necessario, lo aggiunge
 			if (!CheckEdges(DualMesh.Cell1DsVertices, d_start, d_end, new_edge_id, existing_edge_id)) {
