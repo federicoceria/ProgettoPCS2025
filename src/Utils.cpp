@@ -387,17 +387,16 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 	// allochiamo spazio in memoria per gli Id e i vertici delle celle 1D del poliedro geodetico.
 	// Numero max di spigoli da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
     int total_edges = 30 * segments * segments; //questa formula è scritta nel pdf
-    Geodetic.Cell1DsId.reserve(total_edges); 
     Geodetic.Cell1DsVertices = MatrixXi::Zero(2, total_edges); // Geodetic.Cell1DsVertices.reserve(total_edges); 
-
+	Geodetic.Cell1DsId.reserve(total_edges);
 
 	// allochiamo spazio in memoria per gli Id ,i lati e i vertici delle celle 2D del poliedro geodetico.
 	// Numero max di facce triangolari da generare (si considera il caso con il numero massimo, cioè l'icosaedro)
     int total_faces = 20 * segments * segments; //questa formula è scritta nel pdf
     Geodetic.Cell2DsId.reserve(total_faces); 
-    Geodetic.Cell2DsVertices.resize(total_faces);
     Geodetic.Cell2DsEdges.resize(total_faces);
-	Geodetic.Cell2DsNumEdges.resize(total_faces);
+    Geodetic.Cell2DsNumEdges.resize(total_faces);
+	Geodetic.Cell2DsVertices.resize(total_faces);
 	Geodetic.Cell2DsNumVertices.resize(total_faces);
 
 
@@ -458,8 +457,9 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
                     Geodetic.Cell0DsCoordinates(0,points_id) = Point[0];
 					Geodetic.Cell0DsCoordinates(1,points_id) = Point[1];
 					Geodetic.Cell0DsCoordinates(2,points_id) = Point[2];
+					points_id++;
 					Geodetic.NumCell0Ds++;   // incremento il contatore di celle 0D del poliedro geodetico e quello dei punti
-                    points_id++;
+                    
                 }
                 else
                 {
@@ -646,7 +646,7 @@ ove a = segments -i -j;
 
 /************************************************************************************************/
 
-void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
+void DualMesh(const PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 {
     // Identificatori iniziali per il duale
     int center_id = 0;  // Identificatore per i baricentri (nuovi vertici)
@@ -656,27 +656,29 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 
     // Il duale ha tanti vertici quante facce ha il poliedro originale
     DualMesh.NumCell0Ds = InputMesh.NumCell2Ds;
-    DualMesh.Cell0DsId.resize(DualMesh.NumCell0Ds);
+    DualMesh.Cell0DsId.reserve(DualMesh.NumCell0Ds);
     //DualMesh.Cell0DsCoordinates.resize(DualMesh.NumCell0Ds);
 	DualMesh.Cell0DsCoordinates = MatrixXd::Zero(3,DualMesh.NumCell0Ds);
 
     // Gli spigoli nel duale rimangono in numero uguale a quelli del poliedro originale
     DualMesh.NumCell1Ds = InputMesh.NumCell1Ds;
 	DualMesh.Cell1DsId.reserve(DualMesh.NumCell1Ds);
+	DualMesh.Cell1DsVertices = MatrixXi::Zero(2, DualMesh.NumCell1Ds);
 	// DualMesh.Cell1DsVertices.resize(DualMesh.NumCell1Ds);
 
     // Il duale ha tante facce quante sono i vertici del poliedro originale
     DualMesh.NumCell2Ds = InputMesh.NumCell0Ds;
-	DualMesh.Cell1DsVertices = MatrixXi::Zero(2, DualMesh.NumCell1Ds);
     DualMesh.Cell2DsId.reserve(DualMesh.NumCell2Ds);
     DualMesh.Cell2DsVertices.resize(DualMesh.NumCell2Ds);
     DualMesh.Cell2DsEdges.resize(DualMesh.NumCell2Ds);
+	DualMesh.Cell2DsNumEdges.resize(DualMesh.NumCell2Ds);
+	DualMesh.Cell2DsVertices.resize(DualMesh.NumCell2Ds);
 
     // Mappa per associare le facce del poliedro ai baricentri nel duale (tramite gli id)
     map<int, int> FaceCenters;
 	// Itera su tutte le facce del poliedro
     for (const auto& face_id : InputMesh.Cell2DsId) {
-        Vector3d centro;  // Inizializza il baricentro
+        Vector3d center;  // Inizializza il baricentro
 
 		Vector3d V1 = InputMesh.Cell0DsCoordinates.col(InputMesh.Cell2DsVertices[face_id][0]);
 		Vector3d V2 = InputMesh.Cell0DsCoordinates.col(InputMesh.Cell2DsVertices[face_id][1]);
@@ -691,13 +693,13 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 		// Divide la somma delle coordinate per il numero di vertici per ottenere la media
         //centro_id /= InputMesh.Cell2DsVertices[face_id].size(); 
 
-		centro = (1.0/3.0)*V1 + (1.0/3.0)*V2 + (1.0/3.0)*V3;
+		center = (1.0/3.0)*V1 + (1.0/3.0)*V2 + (1.0/3.0)*V3;
         // Salva l'ID del baricentro nel duale
         DualMesh.Cell0DsId.push_back(center_id);
         // DualMesh.Cell0DsCoordinates[center_id] = centro_id;
-		DualMesh.Cell0DsCoordinates(0, face_id) = centro(0);
-		DualMesh.Cell0DsCoordinates(1, face_id) = centro(1);
-		DualMesh.Cell0DsCoordinates(2, face_id) = centro(2);
+		DualMesh.Cell0DsCoordinates(0, face_id) = center(0);
+		DualMesh.Cell0DsCoordinates(1, face_id) = center(1);
+		DualMesh.Cell0DsCoordinates(2, face_id) = center(2);
 		
         // Associa l'ID del baricentro alla faccia originale
         FaceCenters[face_id] = center_id;
@@ -708,7 +710,7 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 
 	// Ora creiamo le facce del duale utilizzando i baricentri trovati sopra
 	// Itera attraverso tutti gli id dei vertici del poliedro originale, perchè ogni faccia nel poliedro duale corrisponde ad un vertice dell'originale
-    for (const auto& vertex_id : InputMesh.Cell0DsId) {
+    for (const auto& vert_id : InputMesh.Cell0DsId) {
         vector<int> AdjacentFaces;  //vettore che conterrà gli ID delle facce adiacenti al vertice corrente
 
         // Trova tutte le facce che contengono questo vertice
@@ -716,9 +718,9 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
         for (const auto& face_id : InputMesh.Cell2DsId) {
 			// Scorre tutti i vertici della faccia corrente (face_id)
             for (int j = 0; j < 3; j++) {
-				/* Confronta vertex_id con ogni vertice della faccia corrente,
-				se vero face_id contiene vertex_id, allora aggiungo l'id della faccia (face_id) ad AdjacentFaces*/ 
-                if (InputMesh.Cell2DsVertices[face_id][j] == vertex_id) {
+				/* Confronta vert_id con ogni vertice della faccia corrente,
+				se vero face_id contiene vert_id, allora aggiungo l'id della faccia (face_id) ad AdjacentFaces*/ 
+                if (InputMesh.Cell2DsVertices[face_id][j] == vert_id) {
                     AdjacentFaces.push_back(face_id);
                     break;
                 }
@@ -746,14 +748,18 @@ void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh)
 		DualMesh.Cell2DsNumEdges[new_face_id] = SortedFacesSize;
 
         // Itera su tutti i vertici della faccia nel duale per determinare gli spigoli
-		for (int k = 0; k < SortedFacesSize; k++) {
+		for (int k = 0; k < SortedFacesSize; k++) 
+		{
 			int d_start = DualMesh.Cell2DsVertices[new_face_id][k];  // Vertice iniziale dell'edge
 			int d_end;
-			if (k == SortedFacesSize-1){
+			if (k == SortedFacesSize-1)
+			{
 				d_end = DualMesh.Cell2DsVertices[new_face_id][0];
-			} else {
+			} 
+			else 
+			{
 			// Se siamo all'ultimo vertice della faccia, il vertice finale deve essere il primo per chiudere la faccia
-			int d_end = DualMesh.Cell2DsVertices[new_face_id][k + 1];
+				d_end = DualMesh.Cell2DsVertices[new_face_id][k + 1];
 			}
 
 			// Verifica che l'edge non sia un duplicato e, se necessario, lo aggiunge
@@ -897,7 +903,7 @@ bool CheckEdges(const MatrixXi& verts, const int& v1, const int& v2, int& dimens
 
 /************************************************************************************************/
 
-bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& NumPath, vector<int> path)
+bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& NumPath, vector<int> path, MatrixXd& W)
 {
 		
 	if (start >= mesh.NumCell0Ds || end >= mesh.NumCell0Ds || start < 0 || end < 0)
@@ -907,7 +913,6 @@ bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double
 	// conviene usare un vector di vector anziché un vector di liste
 	vector<vector<int>> adjacency_list;
 	adjacency_list.reserve(mesh.NumCell0Ds);
-	MatrixXd W = MatrixXd::Zero(mesh.NumCell0Ds, mesh.NumCell0Ds);
 	
 	// iterando su tutti gli id dei punti, 
 	// per ciascun punto itero in tutti gli id dei segmenti (origin,end) e guardo quali hanno per estremo quel punto.
@@ -969,12 +974,19 @@ bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double
 	// path contiene gli id dei vertici che compongono il cammino minimo 
 	// al contrario, perché sono id provenienti dal vettore pred
 	
+	
 	int v = end;
-	while(v != start) {
+	if (pred[v] == -1) {
+		std::cerr << "No path exists from " << start << " to " << end << std::endl;
+		return false;
+	}
+
+	while (v != start) {
 		path.push_back(v);
 		v = pred[v];
-	} 
+	}
 	path.push_back(start);
+	std::reverse(path.begin(), path.end()); // opzionale, se vuoi da start → end
 	return true;
 	//ExpPath(mesh, path, length, NumPath, W);
 }

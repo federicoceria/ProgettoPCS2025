@@ -93,7 +93,7 @@ int main()
     }
     
     // GENERAZIONE DEL POLIEDRO DUALE SE q = 3
-    if (q == 3) 
+    /*if (q == 3) 
     {
         DualMesh(Geodetic, Goldberg);
         // lo han fatto per evitare di fare degli if dopo
@@ -103,7 +103,7 @@ int main()
     else
     {
         cout << "Generated a geodetic polyhedron {3, " << q << "+} for segments (" << b << ", " << c << ")." << endl;
-    }
+    }*/
 
 	cout << "Shortest Path: please, insert the starting id. If you do not want to evaluate it, please enter without inserting anything." << endl;
 	cin >> id1_prov;
@@ -124,7 +124,8 @@ int main()
         double length = 0.0;
         int PathEdges = 0;
         vector<int> visited;
-        ShortestPath(Geodetic, starting_id, ending_id, length, PathEdges, visited);
+		MatrixXd W = MatrixXd::Zero(Geodetic.NumCell0Ds, Geodetic.NumCell0Ds);
+        ShortestPath(Geodetic, starting_id, ending_id, length, PathEdges, visited, W);
 
         cout << "ho eseguito l'if" << endl;
 
@@ -133,7 +134,6 @@ int main()
 		for (const auto& point : path)
 			PathPointsProperties[point] = 1.0;
 
-			
 		Gedim::UCDProperty<double> ShortPathProperty;
 		ShortPathProperty.Label = "shortest path";
 		ShortPathProperty.UnitLabel = "";
@@ -147,18 +147,19 @@ int main()
 	
 		Gedim::UCDUtilities utilities;
 		utilities.ExportPoints("./Cell0Ds.inp",
-								mesh.Cell0DsCoordinates,
+								Geodetic.Cell0DsCoordinates,
 								PointsProperties);
 	
 		vector<int> pathEdges; 
-		vector<double> PathEdgesProperties(mesh.NumCell1Ds, 0.0);
+		vector<double> PathEdgesProperties(Geodetic.NumCell1Ds, 0.0);
 
 		for (size_t i = 0; i < path.size()-1; i++){
 			int v1 = path[i];
 			int v2 = path[i+1];
-			for(const auto& edge: mesh.Cell1DsId){
-				if ((mesh.Cell1DsVertices(0, edge) == v1 && mesh.Cell1DsVertices(1,edge) == v2) || 
-					(mesh.Cell1DsVertices(0, edge) == v2 && mesh.Cell1DsVertices(1,edge) == v1)){
+			for(const auto& edge: Geodetic.Cell1DsId){
+				if ((Geodetic.Cell1DsVertices(0, edge) == v1 && Geodetic.Cell1DsVertices(1,edge) == v2) || 
+					(Geodetic.Cell1DsVertices(0, edge) == v2 && Geodetic.Cell1DsVertices(1,edge) == v1))
+					{
 						pathEdges.push_back(edge);
 						PathEdgesProperties[edge] = 1.0;
 					}
@@ -167,7 +168,7 @@ int main()
 		
 		for(size_t i = 0; i < path.size()-1; i++)
 			length += W(path[i],path[i+1]);
-		NumPath = pathEdges.size();
+		PathEdges = pathEdges.size();
 		
 		
 		ShortPathProperty.Label = "shortest path";
@@ -179,17 +180,18 @@ int main()
 		vector<Gedim::UCDProperty<double>> EdgesProperties;
 		EdgesProperties.push_back(ShortPathProperty);
 		utilities.ExportSegments("./Cell1Ds.inp",
-								mesh.Cell0DsCoordinates,
-								mesh.Cell1DsVertices,
+								Geodetic.Cell0DsCoordinates,
+								Geodetic.Cell1DsVertices,
 								{},
-								EdgesProperties);*/
+								EdgesProperties);
 		
 	
     }
-    else{
+    else
+	{
         cerr << "Error: inserted IDs are not valid."<< endl;
     }
-	
+	*/
 	
     
 	// Esportazione file TXT

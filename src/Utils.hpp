@@ -23,7 +23,7 @@ bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id);
 
-void DualMesh(PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh);
+void DualMesh(const PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh);
 
 void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, const PolyhedralMesh& Mesh);
 
@@ -37,7 +37,7 @@ void Projection(PolyhedralMesh& mesh);
 
 bool ExportPolyhedralData(const PolyhedralMesh& mesh);
 
-bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& PathEdges, vector<int> path);
+bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& PathEdges, vector<int> path, MatrixXd& W);
 
 //bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W);
 
