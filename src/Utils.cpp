@@ -929,6 +929,7 @@ bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double
 		adjacency_list.push_back(adj);
 	}
 	
+	//creo la matrice delle distanza
 	for(size_t i = 0; i < adjacency_list.size(); i++)
 	{
 		for(const auto& adj: adjacency_list[i])
