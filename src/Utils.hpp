@@ -23,7 +23,7 @@ void GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id);
 
-void DualMesh(const PolyhedralMesh& InputMesh, PolyhedralMesh& DualMesh);
+void DualMesh(const PolyhedralMesh& StartPolyhedron, PolyhedralMesh& DualPolyhedron);
 
 void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, const PolyhedralMesh& Mesh);
 

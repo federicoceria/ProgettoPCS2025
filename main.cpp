@@ -96,7 +96,7 @@ int main()
     if (q == 3) 
     {
         DualMesh(Geodetic, Goldberg);
-        // lo han fatto per evitare di fare degli if dopo
+        //fatto per evitare di fare degli if dopo
         Geodetic = Goldberg;
         cout << "Generated a Goldberg polyhedron {3+, 3} for segments (" << b << ", " << c << ")." << endl;
     } 
