@@ -60,7 +60,12 @@ int main()
 
         path = path + polyhedron;
     }
-
+	else
+	{
+		cerr << "The inserted value for p should be equal to 3. It is not possible to generate a geodetic polyhedron with p = " << p << "." << endl;
+		return 1;
+	}
+	
     if(!ImportMesh(path, Platonic))
 	{
 		cerr << "An error occurred while importing the mesh" << endl;
@@ -105,33 +110,40 @@ int main()
         cout << "Generated a geodetic polyhedron {3, " << q << "+} for segments (" << b << ", " << c << ")." << endl;
     }
 
-	cout << "Shortest Path: please, insert the starting id. If you do not want to evaluate it, please enter without inserting anything." << endl;
+	cout << "Shortest Path: please, insert the starting id. If you do not want to evaluate it, please enter the letter n." << endl;
 	cin >> id1_prov;
-	cout << "Now, please insert the ending id. As the previous one, if you do not want to evaluate it, please enter without inserting anything." << endl;
+	cout << "Now, please insert the ending id. As the previous one, if you do not want to evaluate it, please enter the letter n." << endl;
 	cin >> id2_prov;
 	
 	int starting_id;
 	int ending_id;
 	
-	if(id1_prov == "" && id2_prov == "")
+	if(id1_prov == "n" && id2_prov == "n")
 	{
 		cout << "The shortest path will not be evaluated." << endl;
 	}
-	else if (id1_prov != "" && id2_prov != "")
+	else if (id1_prov != "n" && id2_prov != "n")
 	{
 		starting_id = stoi(id1_prov);
 		ending_id = stoi(id2_prov);
+		
+		if (starting_id >= Geodetic.NumCell0Ds || ending_id >= Geodetic.NumCell0Ds || starting_id < 0 || ending_id < 0)
+		{
+		cerr << "The inserted Ids are not valid." << endl;
+		return 1;
+		}
+		
         double length = 0.0;
-        int PathEdges = 0;
+        int NumPath = 0;
         vector<int> visited;
 		MatrixXd W = MatrixXd::Zero(Geodetic.NumCell0Ds, Geodetic.NumCell0Ds);
-        ShortestPath(Geodetic, starting_id, ending_id, length, PathEdges, visited, W);
+        ShortestPath(Geodetic, starting_id, ending_id, length, NumPath, visited, W);
 
         cout << "ho eseguito l'if" << endl;
 
-/*
+
         vector<double> PathPointsProperties(Geodetic.NumCell0Ds, 0.0);
-		for (const auto& point : path)
+		for (const auto& point : visited)
 			PathPointsProperties[point] = 1.0;
 			
 		Gedim::UCDProperty<double> ShortPathProperty;
@@ -153,9 +165,9 @@ int main()
 		vector<int> pathEdges; 
 		vector<double> PathEdgesProperties(Geodetic.NumCell1Ds, 0.0);
 
-		for (size_t i = 0; i < path.size()-1; i++){
-			int v1 = path[i];
-			int v2 = path[i+1];
+		for (size_t i = 0; i < visited.size()-1; i++){
+			int v1 = visited[i];
+			int v2 = visited[i+1];
 			for(const auto& edge: Geodetic.Cell1DsId){
 				if ((Geodetic.Cell1DsVertices(0, edge) == v1 && Geodetic.Cell1DsVertices(1,edge) == v2) || 
 					(Geodetic.Cell1DsVertices(0, edge) == v2 && Geodetic.Cell1DsVertices(1,edge) == v1))
@@ -166,9 +178,9 @@ int main()
 			}	
 		}
 		
-		for(size_t i = 0; i < path.size()-1; i++)
-			length += W(path[i],path[i+1]);
-		PathEdges = pathEdges.size();
+		for(size_t i = 0; i < visited.size()-1; i++)
+			length += W(visited[i],visited[i+1]);
+		NumPath = pathEdges.size();
 		
 		
 		ShortPathProperty.Label = "shortest path";
@@ -184,15 +196,12 @@ int main()
 								Geodetic.Cell1DsVertices,
 								{},
 								EdgesProperties);
-		
-	
-    }
+    }   
     else
 	{
-        cerr << "Error: inserted IDs are not valid."<< endl;
+        cerr << "Error: inserted IDs are not valid." << endl;
     }
-	*/
-	
+
     
 	// Esportazione file TXT
     if (!ExportPolyhedralData(Geodetic)) {
@@ -208,6 +217,7 @@ int main()
     cout << "Export completed successfully!" << endl;
     return 0;
 }
+
 	/*Gedim::UCDUtilities utilities;	
     utilities.ExportPoints("./Cell0Ds.inp",
                            Geodetic.Cell0DsCoordinates);
@@ -268,8 +278,9 @@ int main()
     cout << "Number of faces: "   << Geodetic.NumCell2Ds << endl;*/
 
  /*   cout << "andate tutti al concerto dei POLIFONICI" << endl;*/
-    return 0;
-}
+
+/*	return 0;
+}  */
 
 
 

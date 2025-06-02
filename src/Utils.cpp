@@ -16,7 +16,8 @@ using namespace std;
 // ****************************************************************************
 */
 
-namespace PolyhedralLibrary{
+namespace PolyhedralLibrary
+{
 
 
 /*bool PolyhedralChoice(string& path) // c'erano anche PolyhedralMesh& mesh, const char& b, const char& c, bool& walk, const char& p, const char& q
@@ -499,7 +500,8 @@ void Projection(PolyhedralMesh& mesh)
 }
 /************************************************************************************************** */
 
-void GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments) {
+void GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments) 
+{
 			int point_id = 0;			
 			int edge_id = 0;		
 			int face_id = 0;
@@ -721,7 +723,8 @@ void GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic
 
 /************************************************************************************************/
 
-void DualMesh(const PolyhedralMesh& StartPolyhedron, PolyhedralMesh& DualPolyhedron) {
+void DualMesh(const PolyhedralMesh& StartPolyhedron, PolyhedralMesh& DualPolyhedron) 
+{
 			int baricenter_id = 0;
 			int face_id = 0;
 			int edge_id = 0;
@@ -950,16 +953,16 @@ void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, cons
     }
 }
 
-
 /************************************************************************************************/
 
-
-
-bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& NumPath, vector<int> path, MatrixXd& W)
+bool ShortestPath(const PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& NumPath, vector<int>& path, MatrixXd& W)
 {
 		
-	if (start >= mesh.NumCell0Ds || end >= mesh.NumCell0Ds || start < 0 || end < 0)
+	/*if (start >= mesh.NumCell0Ds || end >= mesh.NumCell0Ds || start < 0 || end < 0)
+	{
+		cerr << "The inserted Ids are not valid." << endl;
 		return false;
+	}*/
 	
 	// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
 	// conviene usare un vector di vector anziché un vector di liste
@@ -1014,8 +1017,10 @@ bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double
 		PQ.pop();
 		if (dist[u] < p)
 			continue;
-		for(const auto& w : adjacency_list[u]){
-			if( dist[w] > dist[u] + W(u,w) ) {
+		for(const auto& w : adjacency_list[u])
+		{
+			if( dist[w] > dist[u] + W(u,w) ) 
+			{
 				dist[w] = dist[u] + W(u,w);
 				pred[w] = u;
 				PQ.push({w, dist[w]});
@@ -1028,17 +1033,17 @@ bool ShortestPath(PolyhedralMesh& mesh, const int& start, const int& end, double
 	
 	
 	int v = end;
-	if (pred[v] == -1) {
+	/*if (pred[v] == -1) {
 		std::cerr << "No path exists from " << start << " to " << end << std::endl;
 		return false;
-	}
+	}*/
 
 	while (v != start) {
 		path.push_back(v);
 		v = pred[v];
 	}
 	path.push_back(start);
-	std::reverse(path.begin(), path.end()); // opzionale, se vuoi da start → end
+	//std::reverse(path.begin(), path.end()); // opzionale, se vuoi da start → end
 	return true;
 	//ExpPath(mesh, path, length, NumPath, W);
 }
