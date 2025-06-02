@@ -19,7 +19,7 @@ bool ImportCell1Ds(const string& path, PolyhedralMesh& mesh);
 
 bool ImportCell2Ds(const string& path, PolyhedralMesh& mesh);
 
-bool GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments);
+void GeodeticPolyhedron(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, const int& segments);
 
 void GenerateTriangles(const PolyhedralMesh& Platonic, PolyhedralMesh& Geodetic, map<array<int, 4>, int>& coefficients, int segments, int& edges_id, int& faces_id);
 
