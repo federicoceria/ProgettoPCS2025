@@ -1,9 +1,12 @@
 #include "Utils.hpp"
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <cmath>
 #include <queue>
 #include "PolyhedralMesh.hpp"
+#include <cctype>
+#include <string>
 //#include "UCDUtilities.hpp"
 
 using namespace std;
@@ -955,7 +958,7 @@ void Sort_Faces(const vector<int>& UnsortedFaces, vector<int>& SortedFaces, cons
 
 /************************************************************************************************/
 
-bool ShortestPath(const PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& NumPath, vector<int>& path, MatrixXd& W)
+bool ShortestPath(const PolyhedralMesh& mesh, const int& start, const int& end, vector<int>& path, MatrixXd& W)   // prima del vettore c'erano double& length, int& NumPath
 {
 		
 	/*if (start >= mesh.NumCell0Ds || end >= mesh.NumCell0Ds || start < 0 || end < 0)
@@ -1050,6 +1053,19 @@ bool ShortestPath(const PolyhedralMesh& mesh, const int& start, const int& end, 
 
 /*******************************************************************************************/
 
+bool isInteger(const string& str)
+{
+	if (str.empty())
+		return false;
+	
+	int L = str.length();
+	for (int i = 0; i < L; i++)
+	{
+		if (!isdigit(str[i]))
+			return false;
+	}	
+	return true;
+}
 /*bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W)
 {
 	vector<double> PathPointsProperties(mesh.NumCell0Ds, 0.0);

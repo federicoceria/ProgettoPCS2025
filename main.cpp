@@ -31,14 +31,30 @@ int main()
 
     /*con questa funzione, che al suo interno chiama anche Cell0/1/2Ds, salvo i dati nella mesh.
     Inoltre questa controlla anche che il salvataggio avvenga correttamente*/
-
+	
+	int p;
+	int q;
+	
     cout << "Insert p: " << endl;
 	cin >> p_prov;
+	if(!isInteger(p_prov))
+	{
+		cerr << "The inserted value for p is not valid." << endl;
+		return 1;
+	}
+	else
+		p = stoi(p_prov);
+	
 	cout << "Insert q: " << endl;
 	cin >> q_prov;
-	
-    int p = stoi(p_prov);
-    int q = stoi(q_prov);
+	if(!isInteger(q_prov))
+	{
+		cerr << "The inserted value for q is not valid." << endl;
+		return 1;
+	}
+	else
+		q = stoi(q_prov);
+
 
     if (p == 3)
 	{
@@ -73,27 +89,44 @@ int main()
 	}
     
     /*ricordiamoci di controllare gli input mettendo l'errore se b e c !=0*/
+	
+	int b;
+	int c;
+	
 	cout << "Insert b: " << endl;
 	cin >> b_prov;
+	if(!isInteger(b_prov))
+	{
+		cerr << "The inserted value for b is not valid." << endl;
+		return 1;
+	}
+	else
+		b = stoi(b_prov);
+	
 	cout << "Insert c: " << endl;
 	cin >> c_prov;
-	
-    int c = stoi(b_prov);
-    int b = stoi(c_prov);
+	if(!isInteger(c_prov))
+	{
+		cerr << "The inserted value for c is not valid." << endl;
+		return 1;
+	}
+	else
+		c = stoi(c_prov);
+    
 	
     if(b > 0 && c == 0)
     {
         GeodeticPolyhedron(Platonic, Geodetic, b);
-        cout << "Geodetic solid successfully generated with num_segments = " << b << endl;
+        cout << "Geodetic solid of the first class successfully generated with num_segments = " << b << endl;
     }
     else if(b == 0 && c > 0)
     {
         GeodeticPolyhedron(Platonic, Geodetic, c);
-        cout << "Geodetic solid successfully generated with num_segments = " << c << endl;
+        cout << "Geodetic solid of the first class successfully generated with num_segments = " << c << endl;
     }
 	else
     {
-        cerr << "Error: Invalid parameters for geodetic solid generation." << endl;
+        cerr << "Error: Invalid parameters for type 1 geodetic solid generation." << endl;
         return 1;
     }
     
@@ -103,30 +136,45 @@ int main()
         DualMesh(Geodetic, Goldberg);
         //fatto per evitare di fare degli if dopo
         Geodetic = Goldberg;
-        cout << "Generated a Goldberg polyhedron {3+, 3} for segments (" << b << ", " << c << ")." << endl;
+        cout << "Goldberg polyhedron {3+, 3} for segments (" << b << ", " << c << ") generated succesfully." << endl;
     } 
     else
     {
-        cout << "Generated a geodetic polyhedron {3, " << q << "+} for segments (" << b << ", " << c << ")." << endl;
+        cout << "Geodetic polyhedron {3, " << q << "+} for segments (" << b << ", " << c << ") generated succesfully." << endl;
     }
-
-	cout << "Shortest Path: please, insert the starting id. If you do not want to evaluate it, please enter the letter n." << endl;
-	cin >> id1_prov;
-	cout << "Now, please insert the ending id. As the previous one, if you do not want to evaluate it, please enter the letter n." << endl;
-	cin >> id2_prov;
+	
 	
 	int starting_id;
 	int ending_id;
 	
+	cout << "Shortest Path: please, insert the starting id. If you do not want to evaluate it, please enter the letter n." << endl;
+	cin >> id1_prov;
+	cout << "Now, please insert the ending id. As the previous one, if you do not want to evaluate it, please enter the letter n." << endl;
+	cin >> id2_prov;
+
 	if(id1_prov == "n" && id2_prov == "n")
 	{
 		cout << "The shortest path will not be evaluated." << endl;
 	}
 	else if (id1_prov != "n" && id2_prov != "n")
 	{
-		starting_id = stoi(id1_prov);
-		ending_id = stoi(id2_prov);
+		if(!isInteger(id1_prov))    // check if the two ids are integers.
+		{
+			cerr << "The inserted value for the starting Id is not valid." << endl;
+			return 1;
+		}
+		else
+			starting_id = stoi(id1_prov);
 		
+		if(!isInteger(id2_prov))
+		{
+			cerr << "The inserted value for the ending Id is not valid." << endl;
+			return 1;
+		}
+		else
+			ending_id = stoi(id2_prov);
+		
+		// check if the ids are out of range for the geodetic polyhedron
 		if (starting_id >= Geodetic.NumCell0Ds || ending_id >= Geodetic.NumCell0Ds || starting_id < 0 || ending_id < 0)
 		{
 		cerr << "The inserted Ids are not valid." << endl;
@@ -137,7 +185,7 @@ int main()
         int NumPath = 0;
         vector<int> visited;
 		MatrixXd W = MatrixXd::Zero(Geodetic.NumCell0Ds, Geodetic.NumCell0Ds);
-        ShortestPath(Geodetic, starting_id, ending_id, length, NumPath, visited, W);
+        ShortestPath(Geodetic, starting_id, ending_id, visited, W);    //  length, NumPath,
 
         cout << "ho eseguito l'if" << endl;
 

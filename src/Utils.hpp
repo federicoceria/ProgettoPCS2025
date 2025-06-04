@@ -37,7 +37,9 @@ void Projection(PolyhedralMesh& mesh);
 
 bool ExportPolyhedralData(const PolyhedralMesh& mesh);
 
-bool ShortestPath(const PolyhedralMesh& mesh, const int& start, const int& end, double& length, int& PathEdges, vector<int>& path, MatrixXd& W);
+bool ShortestPath(const PolyhedralMesh& mesh, const int& start, const int& end, vector<int>& path, MatrixXd& W);   // prima del vettore c'erano double& length, int& NumPath
+
+bool isInteger(const string& str);
 
 //bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W);
 
