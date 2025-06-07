@@ -7,7 +7,7 @@
 #include "PolyhedralMesh.hpp"
 #include <cctype>
 #include <string>
-//#include "UCDUtilities.hpp"
+#include "UCDUtilities.hpp"
 
 using namespace std;
 
@@ -834,8 +834,16 @@ bool ShortestPath(const PolyhedralMesh& mesh, const int& start, const int& end, 
 	}
 	path.push_back(start);
 	//std::reverse(path.begin(), path.end()); // opzionale, se vuoi da start → end
+	
+	int size = path.size();
+	cout << "Shortest path between the vertices " << start << " and " << end << ":" << endl;
+	for (int i=0; i < size-1; i++)
+	{
+		cout << path[i] << ",";
+	}
+	cout << path[size-1] << "." << endl;
+	
 	return true;
-	//ExpPath(mesh, path, length, NumPath, W);
 }
 
 /*******************************************************************************************/

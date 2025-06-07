@@ -173,11 +173,10 @@ int main()
         double length = 0.0;
         int NumPath = 0;
         vector<int> visited;
-		MatrixXd W = MatrixXd::Zero(Geodetic.NumCell0Ds, Geodetic.NumCell0Ds);
-        ShortestPath(Geodetic, starting_id, ending_id, visited, W);    //  length, NumPath,
+		MatrixXd Weight = MatrixXd::Zero(Geodetic.NumCell0Ds, Geodetic.NumCell0Ds);
+        ShortestPath(Geodetic, starting_id, ending_id, visited, Weight);    //  length, NumPath,
 
-        cout << "ho eseguito l'if" << endl;
-
+        //cout << "ho eseguito l'if" << endl;
 
         vector<double> PathPointsProperties(Geodetic.NumCell0Ds, 0.0);
 		for (const auto& point : visited)
@@ -216,9 +215,10 @@ int main()
 		}
 		
 		for(size_t i = 0; i < visited.size()-1; i++)
-			length += W(visited[i],visited[i+1]);
+			length += Weight(visited[i],visited[i+1]);
 		NumPath = pathEdges.size();
 		
+		cout << "The shortest path between vertex " << starting_id << " and vertex " << ending_id << " contains " << NumPath << " edges and has a length of " << length << "." << endl;
 		
 		ShortPathProperty.Label = "shortest path";
 		ShortPathProperty.UnitLabel = "";
@@ -255,69 +255,6 @@ int main()
     return 0;
 }
 
-	/*Gedim::UCDUtilities utilities;	
-    utilities.ExportPoints("./Cell0Ds.inp",
-                           Geodetic.Cell0DsCoordinates);
-
-    utilities.ExportSegments("./Cell1Ds.inp",
-								Geodetic.Cell0DsCoordinates,
-								Geodetic.Cell1DsVertices); 
-
-    utilities.ExportPoints("./Cell0DsDual.inp",
-                           Goldberg.Cell0DsCoordinates);
-
-    utilities.ExportSegments("./Cell1DsDual.inp",
-								Goldberg.Cell0DsCoordinates,
-								Goldberg.Cell1DsVertices); 
-    
-	*/
-
-
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
-    /*string solidType;
-    cout << "Which solid do you want to generate? (tetrahedron, octahedron, icosahedron): ";
-    cin >> solidType;
-
-    if (!PolyhedralChoice(path, inputMesh, p, q, b, c, walk)) {
-        cerr << "Error importing selected solid." << endl;
-        return 1;
-    }
-
-    if (!GeodeticPolyhedron(inputMesh, Geodetic, num_segments)) {
-        cerr << "Error generating the Geodetic solid." << endl;
-        return 1;
-    }    questa parte è commentata in quanto da problemi con l'esecuzione del codice, c'è un problema con
-        la firma della funzione, ovvero coi parametri che le vengono passati, solidtype dovrebbe essere
-        un valore booleano, ma a quel punto perde di senso. per me solidtype si potrebbe anche eliminare
-        e si potrebbero riscrivere queste righe in modo dierso, ma non lo faccio in quanto non lo ho scritto
-        io e non vorre che servisse nell'idea di qualcuno a fare qualcosa.
-    //! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
-
-    cout << "Geodetic solid successfully generated with num_segments = " << num_segments << endl;
-    cout << "Number of vertices: " << Geodetic.NumCell0Ds << endl;
-    cout << "Number of edges: " << Geodetic.NumCell1Ds << endl;
-    cout << "Number of faces: "   << Geodetic.NumCell2Ds << endl;*/
-
- /*   cout << "andate tutti al concerto dei POLIFONICI" << endl;*/
-
-/*	return 0;
-}  */
 
 
 

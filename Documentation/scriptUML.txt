@@ -1,0 +1,369 @@
+SHORTEST PATH EVALUATION
+
+@startuml
+title Shortest Path Evaluation
+
+start
+
+:Check if both IDs are integers;
+if (IDs valid) then (yes)
+  :Convert ID strings to int;
+  :Check if IDs are in valid range;
+  if (IDs in range) then (yes)
+    :Initialize weight matrix W;
+    :Call ShortestPath();
+    :Build visited path;
+
+    :Mark visited Cell0Ds;
+    :Create UCDProperty for points;
+    :Export Cell0Ds.inp;
+
+    :Loop over visited pairs;
+    :Identify corresponding edges;
+    :Mark visited Cell1Ds;
+    :Accumulate total path length;
+
+    :Create UCDProperty for edges;
+    :Export Cell1Ds.inp;
+  else (no)
+    :Show error "IDs out of range";
+    stop
+  endif
+else (no)
+  :Show error "Invalid ID input";
+  stop
+endif
+
+stop
+@enduml
+
+====================================================================
+ACTIVITY DIAGRAM
+
+@startuml
+
+start
+
+:Input p;
+if (isInteger(p)) then (yes)
+  :Convert p_prov to int;
+else (no)
+  :Show error "Invalid p";
+  stop
+endif
+
+:Input q;
+if (isInteger(q)) then (yes)
+  :Convert q_prov to int;
+else (no)
+  :Show error "Invalid q";
+  stop
+endif
+
+if (p == 3) then (yes)
+  if (q == 3/4/5) then (yes)
+    :Set polyhedron path;
+  else (no)
+    stop
+  endif
+else (no)
+  :Show error "p != 3";
+  stop
+endif
+
+:ImportMesh(path, Platonic);
+if (ImportMesh fails) then (yes)
+  :Show error;
+  stop
+endif
+
+:Input b, c;
+if (both invalid) then (yes)
+  :Show error;
+  stop
+endif
+
+if (b > 0 and c == 0) then (yes)
+  :Generate Geodetic (b);
+elseif (b == 0 and c > 0) then (yes)
+  :Generate Geodetic (c);
+else
+  :Show error;
+  stop
+endif
+
+if (q == 3) then (yes)
+  :Generate DualMesh;
+  :Assign Goldberg to Geodetic;
+endif
+
+@enduml
+
+=================================================================
+CLASS DIAGRAM
+
+@startuml
+namespace PolyhedralLibrary {
+
+class PolyhedralMesh <<Object>> {
+  +int NumCell0Ds
+  +vector<int> Cell0DsId
+  +MatrixXd Cell0DsCoordinates
+
+  +int NumCell1Ds
+  +vector<int> Cell1DsId
+  +MatrixXi Cell1DsVertices
+
+  +int NumCell2Ds
+  +vector<int> Cell2DsId
+  +vector<int> Cell2DsNumVertices
+  +vector<int> Cell2DsNumEdges
+  +vector<vector<int>> Cell2DsVertices
+  +vector<vector<int>> Cell2DsEdges
+
+  +int NumCell3Ds
+  +vector<int> Cell3DsId
+  +vector<int> Cell3DsNumVertices
+  +vector<int> Cell3DsNumEdges
+  +vector<int> Cell3DsNumFaces
+  +vector<vector<int>> Cell3DsVertices
+  +vector<vector<int>> Cell3DsEdges
+  +vector<vector<int>> Cell3DsFaces
+}
+
+class ImportExport <<Library>>
+{
+  # ImportCell0Ds
+  # ImportCell1Ds
+  # ImportCell2Ds
+  # ImportMesh
+  # ExportPolyhedralData
+}
+
+class ManipulateMesh <<Library>>
+{
+  # GeodeticPolyhedron
+  # GenerateTriangles
+  # DualMesh
+  # Sort_Faces
+  # Projection
+  # ShortestPath
+}
+class Checking <<Library>>
+{
+  # IsInteger
+  # CheckVertices
+  # CheckEdges
+}
+
+PolyhedralMesh --> ImportExport 
+PolyhedralMesh --> ManipulateMesh
+PolyhedralMesh --> Checking
+ImportExport --> PolyhedralMesh
+ManipulateMesh --> PolyhedralMesh
+Checking --> PolyhedralMesh
+
+}
+@enduml
+
+======================================================================
+
+SEQUENCE DIAGRAM
+
+@startuml
+' ========================
+' SEQUENCE DIAGRAM (Costruzione mesh e export)
+' ========================
+actor User
+participant "main.cpp" as Main
+participant "ImportExport" as IE
+participant "ManipulateMesh" as MM
+participant "Ckecking" as Ch
+
+User -> Main : Provides p, q
+Main -> Ch: IsInteger()
+Ch -> Main: if p and q are integers, it provides the platonic polyhedron data
+Main -> IE : ImportMesh()
+User -> Main : Provides b, c
+Main -> Ch: IsInteger()
+Ch -> Main: if b and c are integers, it verifies some necessary conditions of type 1 geodetic polyhedron
+Main -> MM : GeodeticPolyhedron() and GenerateTriangles()
+MM -> MM : Projection()
+Main -> MM: under some specific conditions, DualMesh()
+User -> Main : Provides id1, id2 (optional, if both are equal to "n" the shortest path is not evaluated)
+Main -> Ch: IsInteger()
+Ch -> Main
+Main -> MM: if id1 and id2 respect some boundary conditions, ShortestPath()
+Main -> IE : ExportPolyhedralData()
+@enduml
+
+===============================================================================
+GEODETICPOLYHEDRON
+
+@startuml
+
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "PolyhedralLibrary::ManipulateMesh" {
+
+  class GeodeticPolyhedron <<Funzione>> 
+  {
+    + input: Platonic Polyhedron
+    + input: segments (= b or c for type 1 geodetic)
+    --
+    + output: Geodetic Polyhedron
+    --
+    - Generazione dei vertici del poliedro geodetico
+    - Costruzione degli spigoli (e verifica duplicati)
+    - Costruzione delle facce (e verifica duplicati)
+    - Proiezione sulla sfera (normalizzazione)
+    - Assegnazione delle celle 0D, 1D, 2D, 3D
+  }
+
+class Checking <<Library>>
+{
+  CheckVertices
+  CheckEdges
+}
+
+
+  GeodeticPolyhedron --> Checking
+  GeodeticPolyhedron --> "Projection()"
+}
+@enduml
+
+===================================================================
+DUALMESH 
+
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "PolyhedralLibrary::ManipulateMesh" {
+
+  class DualMesh <<Funzione>> {
+    + input: GeodeticPolyhedron
+    --
+    + output: Dual
+    --
+    - Generazione dei vertici del duale (coincidenti con le facce del geodetico).
+
+    - Costruzione degli spigoli: per ogni punto, si individuano i centroidi delle
+     facce tra i cui vertici si trova questo punto e li si collega.
+
+    - Costruzione delle facce: gli spigoli appena generati racchiudono le facce del duale.
+
+    - Proiezione sulla sfera (normalizzazione).
+
+    - Assegnazione delle celle 0D, 1D, 2D, 3D.
+  }
+
+class Checking <<Library>>
+{
+  CheckVertices
+  CheckEdges
+}
+
+  DualMesh --> Checking
+  DualMesh --> "Projection()" 
+}
+
+@enduml
+
+===================================================================
+SHORTESTPATH
+
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "PolyhedralLibrary::ManipulateMesh" {
+
+  class ShortestPath <<Funzione>> 
+  {
+    + input: Polyhedron, Id1, Id2, Weight
+    + output: PathEdges, Path
+    --
+    - Creazione della lista di adiacenza dei vertici.
+
+    - Costruzione della matrice dei pesi Weight con distanze euclidee tra vertici adiacenti.
+  
+    - Applicazione algoritmo di Dijkstra.
+
+    - Ricostruzione del percorso e stampa di esso.
+
+    - Calcolo della lunghezza del cammino.
+  }
+@enduml
+
+================================================================================
+CHECKING
+
+@startuml
+package "Checking" {
+  class CheckVertices <<Funzione>> 
+  {
+    + input: Matrix, contenente i punti
+    + input: Vector3d (punto candidato)
+    + input: duplicate_id
+    --
+    + output: bool
+    --
+    Verifica della presenza del punto contenuto in Vector3d nella Matrix.
+    Se lo è, in duplicate_id viene salvato l'id del punto.
+  }
+
+  class CheckEdges <<Funzione>> {
+    + input: Matrix, v1, v2
+    + input: existing_edge_id
+    --
+    + output: bool
+    --
+    Verifica che lo spigolo di vertici v1 e v2 non sia già presente. In tal 
+    caso, salvataggio dell'id corrispondente in existing_edge_id.
+  }
+  
+  class IsInteger <<Funzione>>
+  {
+    + input: string
+    --
+    + output: bool
+    --
+    Verifica che il contenuto della stringa sia un numero intero, in modo da 
+    poterlo convertire in type int senza errori.
+
+  }
+
+}
+
+@enduml
+
+================================================================================
+ALTRE FUNZIONI 
+
+@startuml
+
+class Projection <<Funzione>> 
+{
+    + input: PolyhedralMesh
+    --
+    Normalizzazione di ogni punto sulla sfera unitaria. 
+  }
+  
+  class SortFaces <<Funzione>> {
+    + input: unsorted_faces
+    + input: Polyhedron
+    --
+    + output: SortedFaces
+    --
+    Dato il vettore "unsorted_faces" di facce adiacenti ad un 
+    vertice comune, questa funzione le riordina affinché 
+    ogni faccia condivida uno spigolo con la faccia successiva 
+    del vettore "ordered faces".
+    }
+  
+  @enduml
