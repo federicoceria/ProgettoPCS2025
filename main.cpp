@@ -21,17 +21,6 @@ int main()
 	string id1_prov;
 	string id2_prov;
 
-    /*prende in input path e mesh, chiede con un cin i parametri di schlafli, e in base a quelli, grazie 
-    alla funzione PolyhedralChoice, modifica il path*/
-    /*if(!PolyhedralChoice(path))  // if(!ParameterSelection(path, Platonic)); ho tolto Platonic perché di fatto polyhedralchoice non la usa mai
-	{
-		cerr << "An error occurred while selecting the parameters: in order to generate a geodetic solid, p has to be equal to 3 and q has to be chosen between the values 3,4,5." << endl;
-		return 1;
-	}
-
-    /*con questa funzione, che al suo interno chiama anche Cell0/1/2Ds, salvo i dati nella mesh.
-    Inoltre questa controlla anche che il salvataggio avvenga correttamente*/
-	
 	int p;
 	int q;
 	

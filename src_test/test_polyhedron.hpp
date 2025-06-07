@@ -1,4 +1,4 @@
-/* #pragma once
+#pragma once
 
 #include <iostream>
 #include <gtest/gtest.h>
@@ -9,131 +9,132 @@
 
 const int segments = 5;
 
-// questa calcola il numero di vertici che hanno una certa valenza
+// questa calcola il numero di vertici che hanno una certa valenza data in input
 int VertexDegree(int& ExpectedDegree, const std::vector<int>& Vertices, const std::vector<std::vector<int>>& Faces) {
-	int NumVertexOfExpectedDegree = 0;
+	int NumVertexOfDegree = 0;
 	for (const auto& Vertex : Vertices) {
 		int VertexDegree = 0;
 		for (const auto& listOfVertex : Faces ) //listOfVertex=vettore dei vertici che formano una faccia.
 			if (std::find(listOfVertex.begin(), listOfVertex.end(), Vertex) != listOfVertex.end())
 				VertexDegree++;
 		if (VertexDegree == ExpectedDegree)
-			NumVertexOfExpectedDegree++;
+			NumVertexOfDegree++;
 	}
 	
-	return NumVertexOfExpectedDegree;
+	return NumVertexOfDegree;
 }		
-/*NON SO A COSA SERVA STA ROBA
-array<int, 3> SolidProperties(const int& V, const int& E, const int& F, const int& TriangulationParameter) {
-	int Exp_V = V + E*(2*segments-1) + F * ( (3.0*segments*segments)/2.0 - (3.0*segments/2.0) + 1);
-	int Exp_E = E * 2 * segments + F * ( (9.0*segments*segments)/2.0 + (3.0*segments/2.0) );
+
+//SE NON SERVE CANCELLARE!!!
+/*array<int, 3> SolidProperties(const int& V, const int& E, const int& F, const int& TriangulationParameter) {
+	int Exp_V = 2*segments*segments +2;
+	int Exp_E = ;
 	int Exp_F = F * ( 3 * segments * segments + 3 * segments);
 	array<int, 3> solid_properties = {Exp_V, Exp_E, Exp_F};
-	return solid_properties;
-} * /
-
+	return solid_properties;*/
+ 
+//testa se la funzione geodetica associata al tetraedro funziona
 TEST(TestGeodeticPolyhedron, TestTetrahedronTriangulation)
 {
-    //TIPO QUA SOTTO CI ANDREBBE POLYHEDRALMESH E NON POLIEDRON
-	PolyhedronMesh PlatonicPolyhedron;
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Tetraedro/"))
-		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+	PolyhedralMesh Platonic;
+	if (!ImportMesh(Platonic, "../Platonic_solids/Tetraedro/"))
+		FAIL() << "Something went wrong during the importation of the mesh: Platonic";
 
-	PolyhedronMesh GeodeticPolyhedron;
-	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, segments);
+	PolyhedralMesh Geodetic;
+	GeodeticPolyhedron(Platonic, Geodetic, segments);
 	
 	int T = segments*segments;
 	int ExpectedVertices = 2*T + 2;
 	int ExpectedEdges = 6*T;
 	int ExpectedFaces = 4*T;
 	
-	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVertices);
-	EXPECT_EQ(GeodeticPolyhedron.NumCell1Ds, ExpectedEdges);
-	EXPECT_EQ(GeodeticPolyhedron.NumCell2Ds, ExpectedFaces);
+	EXPECT_EQ(Geodetic.NumCell0Ds, ExpectedVertices);
+	EXPECT_EQ(Geodetic.NumCell1Ds, ExpectedEdges);
+	EXPECT_EQ(Geodetic.NumCell2Ds, ExpectedFaces);
 	
 	int Degree1 = 3;
 	int Degree2 = 6;
-	int ExpectedNumDegree1 = 4;
-	int ExpectedNumDegree2 = 2*(T-1);
+	int ExpectedNumVertexDegree1 = 4;
+	int ExpectedNumVertexDegree2 = 2*(T-1);
 	
-	int NumDegree1 = VertexDegree(Degree1, GeodeticPolyhedron.Cell0DsId, GeodeticPolyhedron.Cell2DsVertices);
-	int NumDegree2 = VertexDegree(Degree2, GeodeticPolyhedron.Cell0DsId, GeodeticPolyhedron.Cell2DsVertices);
+	int NumVertexOfDegree1 = VertexDegree(Degree1, Geodetic.Cell0DsId, Geodetic.Cell2DsVertices);
+	int NumVertexOfDegree2 = VertexDegree(Degree2, Geodetic.Cell0DsId, Geodetic.Cell2DsVertices);
 	
-	EXPECT_EQ(ExpectedNumDegree1, NumDegree1);
-	EXPECT_EQ(ExpectedNumDegree2, NumDegree2);
+	EXPECT_EQ(ExpectedNumDegree1, NumVertexOfDegree1);
+	EXPVertexECT_EQ(ExpectedNumVertexDegree2, NumVertexOfDegree2);
 }
 
+//testa se la funzione geodetica associata al' ottaedro funziona
 TEST(TestGeodeticPolyhedron, TestOctahedronTriangulation)
 {
-	PolyhedronMesh PlatonicPolyhedron;
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Ottaedro/"))
-		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+	PolyhedralMesh Platonic;
+	if (!ImportMesh(Platonic, "../Platonic_solids/Ottaedro/"))
+		FAIL() << "Something went wrong during the importation of the mesh: Platonic";
 
-	PolyhedronMesh GeodeticPolyhedron;
-	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, segments);
+	PolyhedralMesh Geodetic;
+	GeodeticPolyhedron(Platonic, Geodetic, segments);
 	
 	int T = segments*segments;
 	int ExpectedVertices = 4*T + 2;
 	int ExpectedEdges = 12*T;
 	int ExpectedFaces = 8*T;
 	
-	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVertices);
-	EXPECT_EQ(GeodeticPolyhedron.NumCell1Ds, ExpectedEdges);
-	EXPECT_EQ(GeodeticPolyhedron.NumCell2Ds, ExpectedFaces);
+	EXPECT_EQ(Geodetic.NumCell0Ds, ExpectedVertices);
+	EXPECT_EQ(Geodetic.NumCell1Ds, ExpectedEdges);
+	EXPECT_EQ(Geodetic.NumCell2Ds, ExpectedFaces);
 	
 	int Degree1 = 4;
 	int Degree2 = 6;
-	int ExpectedNumDegree1 = 6;
-	int ExpectedNumDegree2 = 4*(T-1);
+	int ExpectedNumVertexDegree1 = 6;
+	int ExpectedNumVertexDegree2 = 4*(T-1);
 	
-	int NumDegree1 = VertexDegree(Degree1, GeodeticPolyhedron.Cell0DsId, GeodeticPolyhedron.Cell2DsVertices);
-	int NumDegree2 = VertexDegree(Degree2, GeodeticPolyhedron.Cell0DsId, GeodeticPolyhedron.Cell2DsVertices);
+	int NumVertexOfDegree1 = VertexDegree(Degree1, Geodetic.Cell0DsId, Geodetic.Cell2DsVertices);
+	int NumVertexOfDegree2 = VertexDegree(Degree2, Geodetic.Cell0DsId, Geodetic.Cell2DsVertices);
 	
-	EXPECT_EQ(ExpectedNumDegree1, NumDegree1);
-	EXPECT_EQ(ExpectedNumDegree2, NumDegree2);
+	EXPECT_EQ(ExpectedNumDegree1, NumVertexOfDegree1);
+	EXPVertexECT_EQ(ExpectedNumVertexDegree2, NumVertexOfDegree2);
 }
-
+//testa se la funzione geodetica associata all' icoesaedro funziona
 TEST(TestGeodeticPolyhedron, TestIcosahedronTriangulation)
 {
-	PolyhedronMesh PlatonicPolyhedron;
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Icosaedro/"))
-		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
-
-	PolyhedronMesh GeodeticPolyhedron;
-	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, segments);
+	PolyhedralMesh Platonic;
+	if (!::ImportMesh(Platonic, "../Platonic_solids/Icosaedro/"))
+	FAIL() << "Something went wrong during the importation of the mesh: Platonic";
+	PolyhedralMesh Geodetic;
+	GeodeticPolyhedron(Platonic, Geodetic, segments);
 	
 	int T = segments*segments;
 	int ExpectedVertices = 10*T + 2;
 	int ExpectedEdges = 30*T;
 	int ExpectedFaces = 20*T;
 	
-	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVertices);
-	EXPECT_EQ(GeodeticPolyhedron.NumCell1Ds, ExpectedEdges);
-	EXPECT_EQ(GeodeticPolyhedron.NumCell2Ds, ExpectedFaces);
+	EXPECT_EQ(Geodetic.NumCell0Ds, ExpectedVertices);
+	EXPECT_EQ(Geodetic.NumCell1Ds, ExpectedEdges);
+	EXPECT_EQ(Geodetic.NumCell2Ds, ExpectedFaces);
 	
 	int Degree1 = 5;
 	int Degree2 = 6;
-	int ExpectedNumDegree1 = 12;
-	int ExpectedNumDegree2 = 10*(T-1);
+	int ExpectedNumVertexDegree1 = 12;
+	int ExpectedNumVertexDegree2 = 10*(T-1);
 	
-	int NumDegree1 = VertexDegree(Degree1, GeodeticPolyhedron.Cell0DsId, GeodeticPolyhedron.Cell2DsVertices);
-	int NumDegree2 = VertexDegree(Degree2, GeodeticPolyhedron.Cell0DsId, GeodeticPolyhedron.Cell2DsVertices);
+	int NumVertexOfDegree1 = VertexDegree(Degree1, Geodetic.Cell0DsId, Geodetic.Cell2DsVertices);
+	int NumVertexOfDegree2 = VertexDegree(Degree2, Geodetic.Cell0DsId, Geodetic.Cell2DsVertices);
 	
-	EXPECT_EQ(ExpectedNumDegree1, NumDegree1);
-	EXPECT_EQ(ExpectedNumDegree2, NumDegree2);
+	EXPECT_EQ(ExpectedNumDegree1, NumVertexOfDegree1);
+	EXPVertexECT_EQ(ExpectedNumVertexDegree2, NumVertexOfDegree2);
 }
 
+//FUNZIONE TEST FEDE
 TEST(TestDualPolyhedron, TestType1)
 {
-	PolyhedronMesh PlatonicPolyhedron;
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Tetraedro/"))
+	PolyhedralMesh Platonic;
+	if (!::ImportMesh(Platonic, "../Platonic_solids/Tetraedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
-	PolyhedronMesh GeodeticPolyhedron;
-	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, segments);
+	PolyhedralMesh Geodetic;
+	GeodeticPolyhedron(Platonic, Geodetic, segments);
 	
-	PolyhedronMesh DualPolyhedron;
-	Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
+	PolyhedralMesh DualPolyhedron;
+	Dual(Geodetic, DualPolyhedron);
 	
 	int T = segments*segments;
 	int ExpectedVertices = 4*T;
@@ -143,55 +144,54 @@ TEST(TestDualPolyhedron, TestType1)
 	EXPECT_EQ(DualPolyhedron.NumCell2Ds, ExpectedFaces);
 }
 
-//PER CAPIRE QUESTE DEVI VEDERE IL FUNZIONAMENTO DI ORDERED_FACES
+//PER CAPIRE QUESTE DEVI VEDERE IL FUNZIONAMENTO DI ORDERED_FACES-FEDE
 TEST(TestOrderFaces, Test_unordered)
 {
-	PolyhedronMesh PlatonicPolyhedron;
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Ottaedro/"))
+	PolyhedralMesh Platonic;
+	if (!::ImportMesh(Platonic, "../Platonic_solids/Ottaedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 	
 	vector<int> unordered_faces = {4, 5, 3, 2};
 	vector<int> ordered_faces;
 	
-	OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
+	OrderFaces(unordered_faces, ordered_faces, Platonic);
 	vector<int>expected_ordered_faces  = {4, 5, 2, 3};
 	
 	EXPECT_EQ(ordered_faces, expected_ordered_faces);
 }
 
-//PER CAPIRE QUESTE DEVI VEDERE IL FUNZIONAMENTO DI ORDERED_FACES
+//PER CAPIRE QUESTE DEVI VEDERE IL FUNZIONAMENTO DI ORDERED_FACES-FEDE
 TEST(TestOrderFaces, Test_ordered)
 {
-	PolyhedronMesh PlatonicPolyhedron;
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Icosaedro/"))
+	PolyhedralMesh Platonic;
+	if (!::ImportMesh(Platonic, "../Platonic_solids/Icosaedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 	
 	vector<int> unordered_faces = {10, 11, 12, 17, 16};
 	vector<int> ordered_faces;
 	
-	OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
+	OrderFaces(unordered_faces, ordered_faces, Platonic);
 	vector<int>expected_ordered_faces  = {10, 11, 12, 17, 16};
 	
 	EXPECT_EQ(ordered_faces, expected_ordered_faces);
 }
 
-
-/*
+//FUNZIONE GABRI
 TEST(TestShortestPath, ShortestPathOnType1)
 {
 	
-	PolyhedronMesh PlatonicPolyhedron;
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Ottaedro/"))
+	PolyhedralMesh Platonic;
+	if (!::ImportMesh(Platonic, "../Platonic_solids/Ottaedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 	
-	PolyhedronMesh GeodeticPolyhedron;
-	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, 2);
+	PolyhedralMesh Geodetic;
+	GeodeticPolyhedron(Platonic, Geodetic, 2);
 	
 	double path_length;
 	int number_edges_in_path;
 	vector<int> path_vertices;	
 	
-	if(!Generation::ShortestPath(GeodeticPolyhedron, 3, 7, path_length, number_edges_in_path, path_vertices))
+	if(!ShortestPath(Geodetic, 3, 7, path_length, number_edges_in_path, path_vertices))
 		FAIL() << "Something went wrong during the execution of ShortestPath function";
 	
 	vector<int>expected_path = {7,3};
@@ -200,26 +200,26 @@ TEST(TestShortestPath, ShortestPathOnType1)
 	EXPECT_EQ(number_edges_in_path, 1);
 	EXPECT_NEAR(0.765367, path_length, 1e-6);
 }
-
+//ANCORA GABRI
 TEST(TestShortestPath, ShortestPathOnDual)
 {
 	
-	PolyhedronMesh PlatonicPolyhedron;
-	PolyhedronMesh DualPolyhedron;
+	PolyhedralMesh Platonic;
+	PolyhedralMesh DualPolyhedron;
 	
-	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../Platonic_solids/Tetraedro/"))
+	if (!::ImportMesh(Platonic, "../Platonic_solids/Tetraedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 	
-	PolyhedronMesh GeodeticPolyhedron;
+	PolyhedralMesh Geodetic;
 	
-	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, 3);
-	Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
+	GeodeticPolyhedron(Platonic, Geodetic, 3);
+	Dual(Geodetic, DualPolyhedron);
 	
 	double path_length;
 	int number_edges_in_path;
 	vector<int> path_vertices;	
 	
-	if(!Generation::ShortestPath(DualPolyhedron, 21, 27, path_length, number_edges_in_path, path_vertices))
+	if(!ShortestPath(DualPolyhedron, 21, 27, path_length, number_edges_in_path, path_vertices))
 		FAIL() << "Something went wrong during the execution of ShortestPath function";
 	
 	vector<int>expected_path = {27, 25, 26, 21};
@@ -228,4 +228,3 @@ TEST(TestShortestPath, ShortestPathOnDual)
 	EXPECT_EQ(number_edges_in_path, 3);
 	EXPECT_NEAR(1.316185, path_length,1e-6);
 }
-*/
