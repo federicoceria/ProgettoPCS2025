@@ -141,6 +141,9 @@ int main()
 	cout << "Now, please insert the ending id. As the previous one, if you do not want to evaluate it, please enter the letter n." << endl;
 	cin >> id2_prov;
 
+	//vector<Gedim::UCDProperty<double>> PointsProperties;
+	//vector<Gedim::UCDProperty<double>> EdgesProperties;
+
 	if(id1_prov == "n" && id2_prov == "n")
 	{
 		cout << "The shortest path will not be evaluated." << endl;
@@ -183,20 +186,18 @@ int main()
 			PathPointsProperties[point] = 1.0;
 			
 		Gedim::UCDProperty<double> ShortPathProperty;
-		ShortPathProperty.Label = "shortest path";
+		ShortPathProperty.Label = "Shortest Path";
 		ShortPathProperty.UnitLabel = "";
 		ShortPathProperty.Size = PathPointsProperties.size();
 		ShortPathProperty.NumComponents = 1;
-		ShortPathProperty.Data = PathPointsProperties.data();  
+		ShortPathProperty.Data = PathPointsProperties.data(); 
 
 
 		vector<Gedim::UCDProperty<double>> PointsProperties;
 		PointsProperties.push_back(ShortPathProperty);
 	
 		Gedim::UCDUtilities utilities;
-		utilities.ExportPoints("./Cell0Ds.inp",
-								Geodetic.Cell0DsCoordinates,
-								PointsProperties);
+		utilities.ExportPoints("./Cell0Ds.inp", Geodetic.Cell0DsCoordinates, PointsProperties, {});
 	
 		vector<int> pathEdges; 
 		vector<double> PathEdgesProperties(Geodetic.NumCell1Ds, 0.0);
@@ -220,19 +221,16 @@ int main()
 		
 		cout << "The shortest path between vertex " << starting_id << " and vertex " << ending_id << " contains " << NumPath << " edges and has a length of " << length << "." << endl;
 		
-		ShortPathProperty.Label = "shortest path";
+		ShortPathProperty.Label = "Shortest Path";
 		ShortPathProperty.UnitLabel = "";
 		ShortPathProperty.Size = PathEdgesProperties.size();
 		ShortPathProperty.NumComponents = 1;
-		ShortPathProperty.Data = PathEdgesProperties.data();  
+		ShortPathProperty.Data = PathEdgesProperties.data();
 	
 		vector<Gedim::UCDProperty<double>> EdgesProperties;
 		EdgesProperties.push_back(ShortPathProperty);
-		utilities.ExportSegments("./Cell1Ds.inp",
-								Geodetic.Cell0DsCoordinates,
-								Geodetic.Cell1DsVertices,
-								{},
-								EdgesProperties);
+		
+		utilities.ExportSegments("./Cell1Ds.inp", Geodetic.Cell0DsCoordinates, Geodetic.Cell1DsVertices, {}, EdgesProperties, {});
     }   
     else
 	{
@@ -247,9 +245,9 @@ int main()
     }
 
 	// Esportazione per Paraview (solo vertici e spigoli)
-    Gedim::UCDUtilities utilities;
-    utilities.ExportPoints("./Cell0Ds.inp", Geodetic.Cell0DsCoordinates);
-    utilities.ExportSegments("./Cell1Ds.inp", Geodetic.Cell0DsCoordinates, Geodetic.Cell1DsVertices);
+    /*Gedim::UCDUtilities utilities;
+    utilities.ExportPoints("./Cell0Ds.inp", Geodetic.Cell0DsCoordinates, PointsProperties, {});
+    utilities.ExportSegments("./Cell1Ds.inp", Geodetic.Cell0DsCoordinates, Geodetic.Cell1DsVertices, {}, EdgesProperties, {});*/
 
     cout << "Export completed successfully!" << endl;
     return 0;

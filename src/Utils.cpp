@@ -861,6 +861,13 @@ bool isInteger(const string& str)
 	}	
 	return true;
 }
+
+/********************************************************************************************/
+
+}
+
+// PER ALE: CANCELLA TUTTO; LA GRAFFA DI CHIUSURA DEL NAMESPACE E' GIA' QUELLA DI RIGA 867, QUINDI NON SERVE AGGIUNGERE NULLA. DA QUI IN GIU' E' TUTTO INUTILE
+
 /*bool ExpPath(PolyhedralMesh& mesh, vector<int> path, double& length, int& NumPath, MatrixXd& W)
 {
 	vector<double> PathPointsProperties(mesh.NumCell0Ds, 0.0);
@@ -1119,4 +1126,3 @@ bool ExpSegments(PolyhedralMesh& mesh, const string& FilePath)
 	
 	return true;
 } */
-}
