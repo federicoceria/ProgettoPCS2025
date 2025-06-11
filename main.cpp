@@ -59,6 +59,7 @@ int main()
 				polyhedron = "/Icosaedro";
 				break;
 			default:
+				cerr << "The inserted value for q is not valid. The value of q should be 3, 4 or 5." << endl;
 				return 1;
                 break;
 		}
@@ -141,12 +142,12 @@ int main()
 	cout << "Now, please insert the ending id. As the previous one, if you do not want to evaluate it, please enter the letter n." << endl;
 	cin >> id2_prov;
 
-	//vector<Gedim::UCDProperty<double>> PointsProperties;
-	//vector<Gedim::UCDProperty<double>> EdgesProperties;
-
 	if(id1_prov == "n" && id2_prov == "n")
 	{
 		cout << "The shortest path will not be evaluated." << endl;
+		Gedim::UCDUtilities utilities;
+		utilities.ExportPoints("./Cell0Ds.inp", Geodetic.Cell0DsCoordinates, {}, {});
+		utilities.ExportSegments("./Cell1Ds.inp", Geodetic.Cell0DsCoordinates, Geodetic.Cell1DsVertices, {}, {}, {});
 	}
 	else if (id1_prov != "n" && id2_prov != "n")
 	{
