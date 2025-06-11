@@ -245,11 +245,6 @@ int main()
         return 1;
     }
 
-	// Esportazione per Paraview (solo vertici e spigoli)
-    /*Gedim::UCDUtilities utilities;
-    utilities.ExportPoints("./Cell0Ds.inp", Geodetic.Cell0DsCoordinates, PointsProperties, {});
-    utilities.ExportSegments("./Cell1Ds.inp", Geodetic.Cell0DsCoordinates, Geodetic.Cell1DsVertices, {}, EdgesProperties, {});*/
-
     cout << "Export completed successfully!" << endl;
     return 0;
 }
